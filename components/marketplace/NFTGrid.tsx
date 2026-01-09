@@ -251,10 +251,11 @@ const NFTGrid = () => {
   useEffect(() => {
     if (!publicClient) return;
 
-    const init = async () => {
+    const fetchTotalSupply = async () => {
       try {
         setLoading(true);
         setError(null);
+        setAllNfts([]); // Reset NFTs on initialization
 
         const supply = await publicClient.readContract({
           address: CONTRACT_ADDRESS,
@@ -262,33 +263,32 @@ const NFTGrid = () => {
           functionName: "totalSupply",
         });
 
-        console.log("supply", supply);
         const count = Number(supply);
-        console.log("count", count);
-
-        // Set state for UI/rendering
         setTotalSupply(count);
 
         if (count === 0) {
-          setAllNfts([]);
           setLoading(false);
-          return;
         }
-
-        // IMPORTANT: Use the fresh 'count' variable here, NOT the state!
-        await loadPage(0, count); // ← pass count explicitly
-
-        setCurrentPage(1);
       } catch (err: any) {
         console.error(err);
         setError("Couldn't read total supply...");
-      } finally {
         setLoading(false);
       }
     };
 
-    init();
-  }, [publicClient, loadPage]);
+    fetchTotalSupply();
+  }, [publicClient]);
+
+  useEffect(() => {
+    if (totalSupply > 0 && allNfts.length === 0) {
+      const loadInitialPage = async () => {
+        await loadPage(0, totalSupply);
+        setCurrentPage(1);
+        setLoading(false);
+      };
+      loadInitialPage();
+    }
+  }, [totalSupply, allNfts.length, loadPage]);
   // Auto-load more when user clicks "Load More"
   const handleLoadMore = () => {
     loadPage(currentPage);
