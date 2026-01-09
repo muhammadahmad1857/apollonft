@@ -149,7 +149,7 @@ export default function CreatePage() {
       // Update Supabase with metadata URL
       const { error } = await supabase.from("files").insert({
         type: ".json", // Update name from metadata
-        ipdsUrl: metadataIpfsUrl,
+        ipfsUrl: metadataIpfsUrl,
         isMinted: false,
         wallet_id: address,
       });
