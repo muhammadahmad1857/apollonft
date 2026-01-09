@@ -36,10 +36,12 @@ export default function CreatePage() {
     title: string;
     description: string;
     coverImageUrl?: string;
+    musicTrackUrl?:string
   }>({
     name: "",
     title: "",
     description: "",
+    musicTrackUrl:""
   });
   const [isSaving, setIsSaving] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -117,7 +119,7 @@ export default function CreatePage() {
         title: metadata.title,
         description: metadata.description,
         cover: metadata.coverImageUrl || null,
-        media: uploadedFile?.ipfsUrl,
+        media: metadata.musicTrackUrl,
       };
 
       // Upload metadata to Pinata
@@ -170,7 +172,7 @@ export default function CreatePage() {
 
   const handleReset = () => {
     setUploadedFile(null);
-    setMetadata({ name: "", title: "", description: "" });
+    setMetadata({ name: "", title: "", description: "",musicTrackUrl:"" });
     setDraftId(null);
     setActiveTab("upload");
     toast.info("Form reset");
