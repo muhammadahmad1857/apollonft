@@ -36,9 +36,12 @@ const NFTGrid = () => {
 
     const start = page * PAGE_SIZE;
     const end = Math.min(start + PAGE_SIZE, totalSupply);
-    console.log(start >= end,start,end);
+    console.log(start >= end, start, end);
     // if (start >= end) return;
     const realCountThisPage = Math.min(PAGE_SIZE, totalSupply - start);
+    console.log("Real count page", realCountThisPage);
+    console.log("current page from params",page);
+    
     if (realCountThisPage <= 0) return;
     setLoadingMore(true);
 
