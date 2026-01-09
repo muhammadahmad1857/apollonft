@@ -27,18 +27,16 @@ const FileSelectInput = ({
 
   useEffect(() => {
     const fetchFiles = async () => {
-      // TODO: Replace with actual API endpoint
-      const mockFiles: FileFromDB[] = [
-        { name: "metadata1.json", ipfs_url: "ipfs://hash1/metadata1.json" },
-        { name: "metadata2.json", ipfs_url: "ipfs://hash2/metadata2.json" },
-        { name: "track1.mp3", ipfs_url: "ipfs://hash3/track1.mp3" },
-        { name: "video1.mp4", ipfs_url: "ipfs://hash4/video1.mp4" },
-      ];
-
       try {
-        let filteredFiles = mockFiles;
+        const response = await fetch(`/api/files?walletId=${walletId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch files");
+        }
+        const allFiles: FileFromDB[] = await response.json();
+
+        let filteredFiles = allFiles;
         if (fileExtensions && fileExtensions.length > 0) {
-          filteredFiles = mockFiles.filter((file) =>
+          filteredFiles = allFiles.filter((file) =>
             fileExtensions.some((ext) => file.name.endsWith(ext))
           );
         }

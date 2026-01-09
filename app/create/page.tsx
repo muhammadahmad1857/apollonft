@@ -97,7 +97,7 @@ export default function CreatePage() {
       // if (!jwtRes.ok) {
       //   throw new Error("Failed to get upload token");
       // }
-      const  JWT  = process.env.NEXT_PUBLIC_PINATA_JWT;
+      const JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 
       const metadataFormData = new FormData();
       metadataFormData.append(
@@ -140,6 +140,7 @@ export default function CreatePage() {
           .update({
             ipfsUrl: uploadedFile.ipfsUrl,
             type: uploadedFile.type,
+            name: uploadedFile.name,
             metadataUrl: metadataIpfsUrl,
           })
           .eq("id", draftId);
@@ -153,6 +154,7 @@ export default function CreatePage() {
           .insert({
             wallet_id: address,
             ipfsUrl: uploadedFile.ipfsUrl,
+            name: uploadedFile.name,
             type: uploadedFile.type,
             metadataUrl: metadataIpfsUrl,
             isMinted: false,
