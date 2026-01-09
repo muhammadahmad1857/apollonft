@@ -2,7 +2,10 @@
 
 import { motion } from "framer-motion";
 
-const PageHeading = () => {
+const PageHeading = ({title,description}:{
+  title?:string | undefined
+  description?:string | undefined
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -11,7 +14,7 @@ const PageHeading = () => {
       className="text-center px-6"
     >
       <h1 className="text-3xl font-semibold relative inline-block">
-        All Public NFTs
+        {title || "All Public NFTs"}
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
@@ -20,7 +23,7 @@ const PageHeading = () => {
         />
       </h1>
       <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-        Discover the latest audio NFTs minted by artists.
+        {description || "Discover the latest audio NFTs minted by artists."}
       </p>
     </motion.div>
   );

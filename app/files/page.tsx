@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { createClient } from "@/lib/config/supabase/client";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { PageHeading } from "@/components/marketplace/PageHeading";
-import { motion } from "framer-motion";
 import { FADE_DOWN_ANIMATION_VARIANTS } from "@/lib/utils";
+import PageHeading from "@/components/marketplace/PageHeading";
+import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -91,7 +91,7 @@ export default function FilesPage() {
           </div>
         ) : files.length === 0 ? (
           <div className="text-center h-96 flex flex-col items-center justify-center">
-            <p className="text-xl">You haven't uploaded any files yet.</p>
+            <p className="text-xl">You haven&apos;t uploaded any files yet.</p>
           </div>
         ) : (
           <motion.div
