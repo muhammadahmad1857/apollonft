@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import NFTCard, { NFTCardProps } from "./NFTCard";
 import SkeletonCards from "./SkeletonCards";
 import { Button } from "../ui/button";
@@ -25,7 +25,7 @@ const NFTGrid = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-
+  const { address } = useAccount();
   const hasMore = useMemo(
     () => totalSupply > 0 && allNfts.length < totalSupply,
     [allNfts.length, totalSupply]
@@ -188,24 +188,23 @@ const NFTGrid = () => {
               console.log(
                 `Metadata fetch status for #${tokenId}: ${res.status}`
               );
-
               if (!res.ok) {
                 throw new Error(`Metadata HTTP ${res.status}`);
               }
 
               const metadata = await res.json();
-
+              console.log(metadata);
               newNfts.push({
                 title: metadata.title || `Track #${tokenId}`,
                 artist: metadata.name || "Unknown Artist",
                 description: metadata.description || "",
                 cover:
-                  metadata.image?.replace(
+                  metadata.cover?.replace(
                     "ipfs://",
                     "https://gateway.pinata.cloud/ipfs/"
                   ) || "",
-                media: metadata.animation_url,
-                owner: "?", // can add ownerOf later if needed
+                media: metadata.media,
+                owner: "address", // can add ownerOf later if needed
                 minted: true,
                 tokenId,
               });

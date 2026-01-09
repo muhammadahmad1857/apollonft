@@ -51,15 +51,47 @@ export default function CreatePage() {
   //   }
   // }, [isConnected, router]);
 
-  const handleFileUpload = (
+  const handleFileUpload = async (
     ipfsUrl: string,
     fileType: ".mp3" | ".mp4" | ".wav",
     fileName: string
   ) => {
     setUploadedFile({ ipfsUrl, type: fileType, name: fileName });
-    // Enable metadata tab after upload
-    if (activeTab === "upload") {
-      setTimeout(() => setActiveTab("metadata"), 500);
+    if (!address) {
+      toast.error("Cannot save file, wallet not connected.");
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("files")
+        .insert({
+          wallet_id: address,
+          ipfsUrl: ipfsUrl,
+          type: fileType,
+          name: fileName,
+          isMinted: false,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        setDraftId(data.id);
+      }
+      toast.success("File uploaded and draft created!");
+      // Enable metadata tab after upload
+      if (activeTab === "upload") {
+        setTimeout(() => setActiveTab("metadata"), 500);
+      }
+    } catch (error) {
+      console.error("Failed to create draft", error);
+      toast.error("Failed to create draft. Please try again.");
+      setUploadedFile(null); // Reset on failure
     }
   };
 
@@ -68,8 +100,8 @@ export default function CreatePage() {
   };
 
   const saveDraft = async () => {
-    if (!address || !uploadedFile) {
-      toast.error("Please upload a file first");
+    if (!draftId) {
+      toast.error("Please upload a file to create a draft first.");
       return;
     }
 
@@ -89,24 +121,12 @@ export default function CreatePage() {
         title: metadata.title,
         description: metadata.description,
         cover: metadata.coverImageUrl || null,
-        media: uploadedFile.ipfsUrl,
+        media: uploadedFile?.ipfsUrl,
       };
 
       // Upload metadata to Pinata
-      // const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
-      // if (!jwtRes.ok) {
-      //   throw new Error("Failed to get upload token");
-      // }
-      const JWT ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIwZjYzNTg1Yy0yMTI3LTRlMjctOTI3NC1kOTE5MDUxMDgxNmEiLCJlbWFpbCI6ImFobWVkamF3YWQxODU3QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0MjNjM2Q2NzU1Mzk2NzBmYmI5NiIsInNjb3BlZEtleVNlY3JldCI6ImU4YmZiOTlkNTA4ZGUwNTQ0NjI0MjBhZDNmZjU1OGViMzZjNzJjNjFhNWMwODc1ZWFiMjQ2YWQxZWE4NGJiMGMiLCJleHAiOjE3OTk1MTk3OTR9.tkrNj23347LGFDzEKiv2J-i0kntPOiDdPtyWns8Ge5Q"
-
-      const metadataFormData = new FormData();
-      metadataFormData.append(
-        "pinataMetadata",
-        JSON.stringify({
-          name: `${metadata.name}-metadata.json`,
-        })
-      );
-      metadataFormData.append("pinataContent", JSON.stringify(metadataJSON));
+      const JWT =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIwZjYzNTg1Yy0yMTI3LTRlMjctOTI3NC1kOTE5MDUxMDgxNmEiLCJlbWFpbCI6ImFobWVkamF3YWQxODU3QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0MjNjM2Q2NzU1Mzk2NzBmYmI5NiIsInNjb3BlZEtleVNlY3JldCI6ImU4YmZiOTlkNTA4ZGUwNTQ0NjI0MjBhZDNmZjU1OGViMzZjNzJjNjFhNWMwODc1ZWFiMjQ2YWQxZWE4NGJiMGMiLCJleHAiOjE3OTk1MTk3OTR9.tkrNj23347LGFDzEKiv2J-i0kntPOiDdPtyWns8Ge5Q";
 
       const metadataUploadRes = await fetch(
         "https://api.pinata.cloud/pinning/pinJSONToIPFS",
@@ -132,40 +152,17 @@ export default function CreatePage() {
       const metadataJson = await metadataUploadRes.json();
       const metadataIpfsUrl = `ipfs://${metadataJson.IpfsHash}`;
 
-      // Save to Supabase
-      if (draftId) {
-        // Update existing draft
-        const { error } = await supabase
-          .from("files")
-          .update({
-            ipfsUrl: uploadedFile.ipfsUrl,
-            type: uploadedFile.type,
-            name: uploadedFile.name,
-            metadataUrl: metadataIpfsUrl,
-          })
-          .eq("id", draftId);
+      // Update Supabase with metadata URL
+      const { error } = await supabase
+        .from("files")
+        .update({
+          name: metadata.name, // Update name from metadata
+          metadataUrl: metadataIpfsUrl,
+        })
+        .eq("id", draftId);
 
-        if (error) throw error;
-        toast.success("Draft updated!");
-      } else {
-        // Create new draft
-        const { data, error } = await supabase
-          .from("files")
-          .insert({
-            wallet_id: address,
-            ipfsUrl: uploadedFile.ipfsUrl,
-            name: uploadedFile.name,
-            type: uploadedFile.type,
-            metadataUrl: metadataIpfsUrl,
-            isMinted: false,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        setDraftId(data.id);
-        toast.success("Draft saved!");
-      }
+      if (error) throw error;
+      toast.success("Draft updated!");
     } catch (error) {
       console.log("Save error:", error);
       toast.error(
