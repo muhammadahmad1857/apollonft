@@ -11,6 +11,7 @@ import { MetadataForm } from "@/components/create/MetadataForm";
 import { createClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 // interface FileData {
 //   id?: string;
@@ -43,12 +44,12 @@ export default function CreatePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isConnected) {
-      toast.info("Please connect your wallet to continue");
-      router.push("/");
-    }
-  }, [isConnected, router]);
+  // useEffect(() => {
+  //   if (!isConnected) {
+  //     toast.info("Please connect your wallet to continue");
+  //     router.push("/");
+  //   }
+  // }, [isConnected, router]);
 
   const handleFileUpload = (
     ipfsUrl: string,
@@ -190,6 +191,7 @@ export default function CreatePage() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <div className="mx-auto max-w-4xl px-6 py-12">
         {/* Page Header */}
+       { isConnected ? <>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -288,7 +290,11 @@ export default function CreatePage() {
               </Button>
             </div>
           </div>
-        </motion.div>
+        </motion.div> 
+        </>: <div className="flex items-center justify-center h-screen">
+          <div className="text-2xl font-bold">Please connect your wallet to continue</div>
+          <ConnectButton showBalance />
+        </div>}
       </div>
     </div>
   );
