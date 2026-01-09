@@ -151,7 +151,7 @@ export default function CreatePage() {
         type: ".json", // Update name from metadata
         ipdsUrl: metadataIpfsUrl,
         isMinted: false,
-        waller_id: address,
+        wallet_id: address,
       });
 
       if (error) throw error;
