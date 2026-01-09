@@ -10,7 +10,7 @@ import Link from "next/link";
 import { erc721Abi } from "viem";
 
 // ← CHANGE THIS!
-const CONTRACT_ADDRESS = "0xYourDeployedContractAddressHere" as const;
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as const;
 
 // Recommended: limit how many we load per page
 const PAGE_SIZE = 12;
