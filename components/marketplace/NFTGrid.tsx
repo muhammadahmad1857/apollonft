@@ -58,7 +58,7 @@ const NFTGrid = () => {
           } as const,
         ];
       }).flat();
-
+      console.log("calls", calls);
       const results = await publicClient.multicall({ contracts: calls });
       console.log("results", results);
       const newNfts: NFTCardProps[] = [];
