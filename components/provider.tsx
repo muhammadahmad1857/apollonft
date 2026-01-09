@@ -6,7 +6,6 @@ import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
-import { Header } from "@/components/Header"
 const queryClient = new QueryClient();
 
 const Provider = ({children}:{children:React.ReactNode}) => {
@@ -22,7 +21,6 @@ const Provider = ({children}:{children:React.ReactNode}) => {
           disableTransitionOnChange
         >
         <Toaster richColors closeButton />
-                <Header />
 
           {children}
         </ThemeProvider>
