@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAccount } from "wagmi";
+import FileSelectInput from "../ui/FileSelectInput";
 
 interface MetadataFormProps {
   onMetadataChange: (metadata: {
@@ -14,20 +16,33 @@ interface MetadataFormProps {
     title: string;
     description: string;
     coverImageUrl?: string;
+    musicTrackUrl?: string;
   }) => void;
   initialData?: {
     name: string;
     title: string;
     description: string;
     coverImageUrl?: string;
+    musicTrackUrl?: string;
   };
 }
 
-export function MetadataForm({ onMetadataChange, initialData }: MetadataFormProps) {
+export function MetadataForm({
+  onMetadataChange,
+  initialData,
+}: MetadataFormProps) {
+  const { address } = useAccount();
   const [name, setName] = useState(initialData?.name || "");
   const [title, setTitle] = useState(initialData?.title || "");
-  const [description, setDescription] = useState(initialData?.description || "");
-  const [coverImageUrl, setCoverImageUrl] = useState(initialData?.coverImageUrl);
+  const [description, setDescription] = useState(
+    initialData?.description || ""
+  );
+  const [coverImageUrl, setCoverImageUrl] = useState(
+    initialData?.coverImageUrl
+  );
+  const [musicTrackUrl, setMusicTrackUrl] = useState(
+    initialData?.musicTrackUrl
+  );
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,8 +53,16 @@ export function MetadataForm({ onMetadataChange, initialData }: MetadataFormProp
       title,
       description,
       coverImageUrl,
+      musicTrackUrl,
     });
-  }, [name, title, description, coverImageUrl, onMetadataChange]);
+  }, [
+    name,
+    title,
+    description,
+    coverImageUrl,
+    musicTrackUrl,
+    onMetadataChange,
+  ]);
 
   const uploadCoverImage = async (file: File) => {
     try {
@@ -108,7 +131,7 @@ export function MetadataForm({ onMetadataChange, initialData }: MetadataFormProp
 
       uploadCoverImage(file);
     },
-    []
+    [uploadCoverImage]
   );
 
   const handleCoverDrop = useCallback(
@@ -199,7 +222,13 @@ export function MetadataForm({ onMetadataChange, initialData }: MetadataFormProp
             >
               <div className="relative h-48 w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
                 <img
-                  src={coverPreview || `https://yellow-random-swordfish-139.mypinata.cloud/ipfs/${coverImageUrl?.replace("ipfs://", "")}`}
+                  src={
+                    coverPreview ||
+                    `https://yellow-random-swordfish-139.mypinata.cloud/ipfs/${coverImageUrl?.replace(
+                      "ipfs://",
+                      ""
+                    )}`
+                  }
                   alt="Cover preview"
                   className="h-full w-full object-cover"
                 />
@@ -250,7 +279,30 @@ export function MetadataForm({ onMetadataChange, initialData }: MetadataFormProp
           )}
         </AnimatePresence>
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="music-track">Music track</Label>
+        {address ? (
+          <FileSelectInput
+            walletId={address}
+            fileExtensions={[".mp3", ".mp4"]}
+            onChange={(url) => {
+              setMusicTrackUrl(url);
+              handleFieldChange();
+            }}
+            className="w-full p-2 border rounded bg-transparent"
+          />
+        ) : (
+          <p className="text-sm text-zinc-500">
+            Please connect your wallet to select a music track.
+          </p>
+        )}
+        {musicTrackUrl && (
+          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+            {musicTrackUrl}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
-

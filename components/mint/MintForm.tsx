@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NFT_ABI } from "@/lib/config/abi.config";
+import FileSelectInput from "../ui/FileSelectInput";
 import { Image, Loader2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BaseError } from "wagmi";
@@ -25,9 +26,8 @@ interface MintFormProps {
 }
 
 export function MintForm({ contractAddress }: MintFormProps) {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [tokenURI, setTokenURI] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toastIdRef = useRef<string | number | null>(null);
 
@@ -63,7 +63,6 @@ export function MintForm({ contractAddress }: MintFormProps) {
       return;
     }
 
-    setIsSubmitting(true);
     console.log("Minting with tokenURI:", tokenURI);
     console.log("Minting with ABI:", NFT_ABI);
     writeContract({
@@ -85,7 +84,6 @@ export function MintForm({ contractAddress }: MintFormProps) {
           ? "You don’t have enough ETH for gas ⛽"
           : errorMessage
       );
-      setIsSubmitting(false);
     }
   }, [writeError]);
 
@@ -102,7 +100,6 @@ export function MintForm({ contractAddress }: MintFormProps) {
       });
       toastIdRef.current = null;
       setTokenURI("");
-      setIsSubmitting(false);
     }
   }, [isSuccess]);
 
@@ -116,12 +113,11 @@ export function MintForm({ contractAddress }: MintFormProps) {
         id: toastIdRef.current,
       });
       toastIdRef.current = null;
-      setIsSubmitting(false);
     }
   }, [txError, txReceiptError]);
 
   // ---------------- UI ----------------
-  const isBusy = isSubmitting || isPreparing || isConfirming;
+  const isBusy = isPreparing || isConfirming;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -161,20 +157,27 @@ export function MintForm({ contractAddress }: MintFormProps) {
               >
                 Metadata URI
               </Label>
-              <div className="relative">
-                <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                <Input
-                  id="tokenURI"
-                  placeholder="https://ipfs.io/ipfs/..."
-                  value={tokenURI}
-                  onChange={(e) => setTokenURI(e.target.value)}
-                  disabled={isBusy}
-                  className="pl-10 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+              {address ? (
+                <FileSelectInput
+                  walletId={address}
+                  fileExtensions={[".json"]}
+                  onChange={setTokenURI}
+                  className="w-full p-2 border rounded bg-transparent"
                 />
-              </div>
+              ) : (
+                <div className="relative">
+                  <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                  <Input
+                    id="tokenURI"
+                    placeholder="Connect wallet to select a file"
+                    value={tokenURI}
+                    disabled={true}
+                    className="pl-10 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                  />
+                </div>
+              )}
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Enter an IPFS hash or HTTPS URL pointing to your NFT metadata
-                JSON
+                Select a metadata JSON file you have already uploaded.
               </p>
             </motion.div>
 

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NFT_ABI } from "@/lib/config/abi.config";
+import FileSelectInput from "../ui/FileSelectInput";
 import { Image, Loader2, Layers, Hash } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BaseError } from "viem";
@@ -26,7 +27,7 @@ interface BatchMintFormProps {
 }
 
 export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [tokenURI, setTokenURI] = useState("");
   const [quantity, setQuantity] = useState("1");
 
@@ -175,17 +176,25 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
               >
                 Metadata URI
               </Label>
-              <div className="relative">
-                <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                <Input
-                  id="batchTokenURI"
-                  placeholder="https://example.com/metadata.json"
-                  value={tokenURI}
-                  onChange={(e) => setTokenURI(e.target.value)}
-                  disabled={isBusy}
-                  className="pl-10 transition-all focus:ring-2 focus:ring-cyan-500/20"
+              {address ? (
+                <FileSelectInput
+                  walletId={address}
+                  fileExtensions={[".json"]}
+                  onChange={setTokenURI}
+                  className="w-full p-2 border rounded bg-transparent"
                 />
-              </div>
+              ) : (
+                <div className="relative">
+                  <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                  <Input
+                    id="batchTokenURI"
+                    placeholder="Connect wallet to select a file"
+                    value={tokenURI}
+                    disabled={true}
+                    className="pl-10 transition-all focus:ring-2 focus:ring-cyan-500/20"
+                  />
+                </div>
+              )}
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 All NFTs in this batch will use the same metadata URI
               </p>
