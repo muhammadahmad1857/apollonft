@@ -6,6 +6,8 @@ import { Music } from "lucide-react";
 
 export interface NFTCardProps {
   title: string;
+  description: string;
+  artist: string;
   cover?: string;
   media: string;
   owner: string;
@@ -13,9 +15,15 @@ export interface NFTCardProps {
   tokenId: number;
 }
 
-const NFTCard = ({ title, cover, media, owner, tokenId }: NFTCardProps) => {
-  const shortOwner = `${owner.slice(0, 6)}...${owner.slice(-4)}`;
-
+const NFTCard = ({
+  title,
+  cover,
+  media,
+  owner,
+  tokenId,
+  artist,
+  description,
+}: NFTCardProps) => {
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
@@ -53,15 +61,18 @@ const NFTCard = ({ title, cover, media, owner, tokenId }: NFTCardProps) => {
 
       <div className="p-4">
         <h3 className="font-semibold text-lg truncate">{title}</h3>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          By {shortOwner} #{tokenId}
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 truncate">
+          {description}
         </p>
-        <div className="mt-4">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          By {artist} #{tokenId}
+        </p>
+        {/* <div className="mt-4">
           <audio controls controlsList="nodownload" className="w-full h-10">
             <source src={media} type="audio/mpeg" />
             Your browser does not support the audio element.
           </audio>
-        </div>
+        </div> */}
       </div>
     </motion.div>
   );
