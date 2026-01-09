@@ -3,10 +3,11 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import CustomSelect from "./CustomSelect";
+import { createClient } from "@/lib/config/supabase/client";
 
 interface FileFromDB {
   name: string;
-  ipfs_url: string;
+  ipfsUrl: string;
 }
 
 interface FileSelectInputProps {
@@ -28,11 +29,18 @@ const FileSelectInput = ({
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await fetch(`/api/files?walletId=${walletId}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch files");
-        }
-        const allFiles: FileFromDB[] = await response.json();
+        const supabase =  createClient();
+        const { data, error,} = await supabase
+    .from("files")
+    .select("name, ipfsUrl")
+    .eq("wallet_id", walletId);
+  if (error) {
+    console.log("Error fetching files from Supabase:", error);
+    throw new Error("Failed to fetch files");
+
+  }
+      
+        const allFiles: FileFromDB[] = data
 
         let filteredFiles = allFiles;
         if (fileExtensions && fileExtensions.length > 0) {
@@ -57,7 +65,7 @@ const FileSelectInput = ({
   };
 
   const options = files.map((file) => ({
-    value: file.ipfs_url,
+    value: file.ipfsUrl,
     label: file.name,
   }));
 
