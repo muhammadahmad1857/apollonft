@@ -181,7 +181,7 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
                   walletId={address}
                   fileExtensions={[".json"]}
                   onChange={setTokenURI}
-                  className="w-full p-2 border rounded bg-transparent"
+                  className="w-full"
                 />
               ) : (
                 <div className="relative">

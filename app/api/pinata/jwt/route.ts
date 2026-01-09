@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const PINATA_JWT =  process.env.PINATA_JWT;
+const PINATA_JWT = process.env.PINATA_JWT;
 const keyRestrictions = {
   keyName: "Signed Upload JWT",
   maxUses: 1,
@@ -37,6 +37,7 @@ export async function POST() {
       "https://api.pinata.cloud/users/generateApiKey",
       options
     );
+    console.log("jwtResponse", jwtResponse);
 
     if (!jwtResponse.ok) {
       const error = await jwtResponse.text();
@@ -48,6 +49,7 @@ export async function POST() {
     }
 
     const json = await jwtResponse.json();
+    console.log("json", json);
     const { JWT } = json;
 
     return NextResponse.json({ JWT });

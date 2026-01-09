@@ -290,7 +290,7 @@ export function MetadataForm({
               setMusicTrackUrl(url);
               handleFieldChange();
             }}
-            className="w-full p-2 border rounded bg-transparent"
+            className="w-full"
           />
         ) : (
           <p className="text-sm text-zinc-500">
