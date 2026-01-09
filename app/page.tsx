@@ -2,7 +2,6 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { FeaturedNFTs } from "@/components/home/FeaturedNFTs";
 import { CTASection } from "@/components/home/CTASection";
-import { Footer } from "@/components/home/Footer";
 
 export default function Home() {
   return (
@@ -11,7 +10,7 @@ export default function Home() {
       <HowItWorks />
       <FeaturedNFTs />
       <CTASection />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
