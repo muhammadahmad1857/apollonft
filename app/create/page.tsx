@@ -98,10 +98,6 @@ export default function CreatePage() {
   };
 
   const saveDraft = async () => {
-    if (!draftId) {
-      toast.error("Please upload a file to create a draft first.");
-      return;
-    }
 
     if (!metadata.name || !metadata.title) {
       toast.error("Please fill in name and title");
@@ -119,7 +115,7 @@ export default function CreatePage() {
         title: metadata.title,
         description: metadata.description,
         cover: metadata.coverImageUrl || null,
-        media: metadata.musicTrackUrl,
+        media: metadata.musicTrackUrl || uploadedFile?.ipfsUrl,
       };
 
       // Upload metadata to Pinata
