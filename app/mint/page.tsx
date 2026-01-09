@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 // Replace with your deployed contract address
 const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
@@ -28,9 +29,9 @@ function MintPage() {
   useEffect(() => {
     if (!isConnected) {
       toast.info("Please connect your wallet to continue");
-      router.push("/");
+      // router.push("/");
     }
-  }, [isConnected, router]);
+  }, [isConnected]);
 
   const copyToClipboard = (text: string, type: "address" | "owner") => {
     navigator.clipboard.writeText(text);
@@ -46,6 +47,8 @@ function MintPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+       {isConnected? (
+        <>
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -219,6 +222,17 @@ function MintPage() {
             </div>
           </motion.div>
         </div>
+        </>
+      ):
+      <div className="flex items-center justify-center h-96">
+      <div className="text-center">
+        <p className="text-2xl font-bold mb-4">
+          Please connect your wallet to see your files.
+        </p>
+        <ConnectButton />
+      </div>
+    </div>
+      }
       </main>
     </div>
   );
