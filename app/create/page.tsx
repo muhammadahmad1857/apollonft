@@ -79,7 +79,6 @@ export default function CreatePage() {
         throw error;
       }
 
-     
       toast.success("File uploaded and draft created!");
       // Enable metadata tab after upload
       if (activeTab === "upload") {
@@ -150,14 +149,12 @@ export default function CreatePage() {
       const metadataIpfsUrl = `ipfs://${metadataJson.IpfsHash}`;
 
       // Update Supabase with metadata URL
-      const { error } = await supabase
-        .from("files")
-        .insert({
-          type: ".json", // Update name from metadata
-          ipdsUrl: metadataIpfsUrl,
-          isMinted:false,
-          waller_id:address
-        })
+      const { error } = await supabase.from("files").insert({
+        type: ".json", // Update name from metadata
+        ipdsUrl: metadataIpfsUrl,
+        isMinted: false,
+        waller_id: address,
+      });
 
       if (error) throw error;
       toast.success("Draft updated!");
@@ -179,10 +176,8 @@ export default function CreatePage() {
     toast.info("Form reset");
   };
 
-  const canSaveDraft =
-    uploadedFile !== null &&
-    metadata.name.trim() !== "" &&
-    metadata.title.trim() !== "";
+  const canSaveDraft=
+  metadata.name.trim() !== "" && metadata.title.trim() !== "";
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
