@@ -22,7 +22,6 @@ interface FileData {
   id: string;
   created_at: string;
   wallet_id: string;
-  name: string;
   ipfsUrl: string;
   type: string;
   isMinted: boolean;
@@ -108,7 +107,7 @@ export default function FilesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>ID</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>IPFS URL</TableHead>
                   <TableHead>Created At</TableHead>
@@ -119,7 +118,7 @@ export default function FilesPage() {
                 {files.map((file) => (
                   <TableRow key={file.id}>
                     <TableCell className="font-medium">
-                      {truncate(file.name, 30)}
+                      {truncate(file.id, 20)}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{file.type}</Badge>

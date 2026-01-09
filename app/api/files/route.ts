@@ -13,11 +13,11 @@ export async function GET(request: NextRequest) {
       { status: 400 }
     );
   }
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("files")
-    .select("name, ipfsUrl")
+    .select("type, ipfsUrl")
     .eq("wallet_id", walletId);
   if (error) {
     console.error("Error fetching files from Supabase:", error);
@@ -32,10 +32,9 @@ export async function GET(request: NextRequest) {
   }
 
   const files = data.map((file) => ({
-    name: file.name || "Untitled",
+    name: file.type || "Unkown",
     ipfs_url: file.ipfsUrl,
   }));
 
   return NextResponse.json(files);
 }
-

@@ -70,7 +70,6 @@ export default function CreatePage() {
           wallet_id: address,
           ipfsUrl: ipfsUrl,
           type: fileType,
-          name: fileName||"Unkown file",
           isMinted: false,
         })
         .select()

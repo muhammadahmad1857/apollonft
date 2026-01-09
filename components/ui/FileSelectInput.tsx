@@ -6,7 +6,7 @@ import CustomSelect from "./CustomSelect";
 import { createClient } from "@/lib/config/supabase/client";
 
 interface FileFromDB {
-  name: string;
+  type: string;
   ipfsUrl: string;
 }
 
@@ -32,7 +32,7 @@ const FileSelectInput = ({
         const supabase =  createClient();
         const { data, error,} = await supabase
     .from("files")
-    .select("name, ipfsUrl")
+    .select("type, ipfsUrl")
     .eq("wallet_id", walletId);
   if (error) {
     console.log("Error fetching files from Supabase:", error);
@@ -45,7 +45,7 @@ const FileSelectInput = ({
         let filteredFiles = allFiles;
         if (fileExtensions && fileExtensions.length > 0) {
           filteredFiles = allFiles.filter((file) =>
-            fileExtensions.some((ext) => file.name.endsWith(ext))
+            fileExtensions.some((ext) => file.type===ext)
           );
         }
         setFiles(filteredFiles);
@@ -66,7 +66,7 @@ const FileSelectInput = ({
 
   const options = files.map((file) => ({
     value: file.ipfsUrl,
-    label: file.name,
+    label: file.type,
   }));
 
   return (
