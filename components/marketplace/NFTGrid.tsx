@@ -36,7 +36,7 @@ const NFTGrid = () => {
 
     const start = page * PAGE_SIZE;
     const end = Math.min(start + PAGE_SIZE, totalSupply);
-    console.log(start >= end);
+    console.log(start >= end,start,end);
     if (start >= end) return;
 
     setLoadingMore(true);
