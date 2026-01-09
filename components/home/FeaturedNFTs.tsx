@@ -70,7 +70,7 @@ export function FeaturedNFTs() {
           className="mb-12"
         >
           <h2 className="text-center text-3xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            Latest Minted Audio NFTs
+            Latest Minted Music track NFTs
           </h2>
           <motion.div
             initial={{ width: 0 }}

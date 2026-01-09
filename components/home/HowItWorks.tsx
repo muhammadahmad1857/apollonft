@@ -16,7 +16,7 @@ const steps = [
   {
     icon: Upload,
     title: "Upload",
-    description: "Upload your audio file and prepare it for minting",
+    description: "Upload your Music track file and prepare it for minting",
   },
   {
     icon: FileText,
@@ -26,7 +26,7 @@ const steps = [
   {
     icon: Sparkles,
     title: "Mint",
-    description: "Mint your audio as an NFT on the blockchain",
+    description: "Mint your Music track as an NFT on the blockchain",
   },
 ];
 

@@ -15,7 +15,7 @@ export function HeroSection() {
           className="text-4xl font-semibold leading-tight tracking-tight md:text-6xl"
         >
           <span className="bg-linear-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
-            Mint Your Audio as NFTs
+            Mint Your Music Track as NFTs
           </span>
         </motion.h1>
 
@@ -25,8 +25,8 @@ export function HeroSection() {
           transition={{ duration: 0.4, delay: 0.1, ease: "ease-out" }}
           className="mx-auto mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400"
         >
-          Transform your audio creations into unique NFTs. Upload, mint, and
-          share your sound on the blockchain.
+          Transform your Music Track creations into unique NFTs. Upload, mint,
+          and share your sound on the blockchain.
         </motion.p>
 
         <motion.div
@@ -40,7 +40,7 @@ export function HeroSection() {
             size="lg"
             className="bg-cyan-500 text-white hover:bg-cyan-600 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
           >
-            <Link href="/mint">Create Audio NFT</Link>
+            <Link href="/mint">Create Music Track NFT</Link>
           </Button>
           <Button
             asChild

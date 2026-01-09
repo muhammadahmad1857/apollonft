@@ -36,12 +36,12 @@ export default function CreatePage() {
     title: string;
     description: string;
     coverImageUrl?: string;
-    musicTrackUrl?:string
+    musicTrackUrl?: string;
   }>({
     name: "",
     title: "",
     description: "",
-    musicTrackUrl:""
+    musicTrackUrl: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -98,7 +98,6 @@ export default function CreatePage() {
   };
 
   const saveDraft = async () => {
-
     if (!metadata.name || !metadata.title) {
       toast.error("Please fill in name and title");
       return;
@@ -168,14 +167,14 @@ export default function CreatePage() {
 
   const handleReset = () => {
     setUploadedFile(null);
-    setMetadata({ name: "", title: "", description: "",musicTrackUrl:"" });
+    setMetadata({ name: "", title: "", description: "", musicTrackUrl: "" });
     setDraftId(null);
     setActiveTab("upload");
     toast.info("Form reset");
   };
 
-  const canSaveDraft=
-  metadata.name.trim() !== "" && metadata.title.trim() !== "";
+  const canSaveDraft =
+    metadata.name.trim() !== "" && metadata.title.trim() !== "";
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -193,7 +192,7 @@ export default function CreatePage() {
                 Create New NFT
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400">
-                Upload your audio and prepare metadata before minting
+                Upload your music and prepare metadata before minting
               </p>
               <motion.div
                 initial={{ width: 0 }}

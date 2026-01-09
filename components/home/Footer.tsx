@@ -19,9 +19,7 @@ export function Footer() {
             onMouseLeave={() => setShowCredit(false)}
             className="text-xs text-zinc-400 transition-colors hover:text-cyan-500 cursor-pointer"
           >
-            {showCredit
-              ? "crafted with care · developed by Ahmad"
-              : "crafted with care"}
+            crafted with care · Contact at shoaibahmed2@live.com
           </Link>
         </div>
       </div>

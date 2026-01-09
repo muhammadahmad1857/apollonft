@@ -29,7 +29,7 @@ export function CTASection() {
         >
           <div className="rounded-2xl bg-zinc-100 dark:bg-zinc-900 p-12 text-center">
             <h2 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-              Ready to mint your audio?
+              Ready to mint your Music track?
             </h2>
             <motion.div
               animate={{ opacity: pulse }}
