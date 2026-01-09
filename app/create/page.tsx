@@ -93,11 +93,11 @@ export default function CreatePage() {
       };
 
       // Upload metadata to Pinata
-      const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
-      if (!jwtRes.ok) {
-        throw new Error("Failed to get upload token");
-      }
-      const { JWT } = await jwtRes.json();
+      // const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
+      // if (!jwtRes.ok) {
+      //   throw new Error("Failed to get upload token");
+      // }
+      const  JWT  = process.env.NEXT_PUBLIC_PINATA_JWT;
 
       const metadataFormData = new FormData();
       metadataFormData.append(

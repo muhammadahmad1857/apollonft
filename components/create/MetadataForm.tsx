@@ -69,11 +69,11 @@ export function MetadataForm({
       setIsUploadingCover(true);
 
       // Get signed JWT
-      const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
-      if (!jwtRes.ok) {
-        throw new Error("Failed to get upload token");
-      }
-      const { JWT } = await jwtRes.json();
+      // const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
+      // if (!jwtRes.ok) {
+      //   throw new Error("Failed to get upload token");
+      // }
+      const  JWT = await process.env.NEXT_PUBLIC_PINATA_JWT;
 
       // Prepare form data
       const formData = new FormData();
