@@ -31,101 +31,209 @@ const NFTGrid = () => {
     [allNfts.length, totalSupply]
   );
 
-  const loadPage = async (page: number, count: number = 0) => {
+  // const loadPage = async (page: number, count: number = 0) => {
+  //   if (!publicClient) return;
+
+  //   const start = page * PAGE_SIZE;
+  //   const end = Math.min(start + PAGE_SIZE, totalSupply);
+  //   console.log(start >= end, start, end);
+  //   // if (start >= end) return;
+  //   const realCountThisPage = Math.min(PAGE_SIZE, count - start);
+  //   console.log("Real count page", realCountThisPage);
+  //   console.log("current page from params", page);
+
+  //   if (realCountThisPage <= 0) return;
+  //   setLoadingMore(true);
+
+  //   try {
+  //     // Multicall tokenByIndex → tokenURI
+  //     console.log("test");
+  //     const calls = Array.from({ length: realCountThisPage }, (_, i) => {
+  //       const globalIndex = start + i;
+  //       return [
+  //         {
+  //           address: CONTRACT_ADDRESS,
+  //           abi: NFT_ABI,
+  //           functionName: "tokenByIndex",
+  //           args: [BigInt(globalIndex)],
+  //         } as const,
+  //         {
+  //           address: CONTRACT_ADDRESS,
+  //           abi: NFT_ABI,
+  //           functionName: "tokenURI",
+  //           args: [BigInt(globalIndex)], // we'll need tokenId later
+  //         } as const,
+  //       ];
+  //     }).flat();
+  //     console.log("calls", calls);
+  //     const results = await publicClient.multicall({ contracts: calls });
+  //     console.log("results", results);
+  //     const newNfts: NFTCardProps[] = [];
+
+  //     for (let i = 0; i < results.length; i += 2) {
+  //       const tokenIdResult = results[i];
+  //       const uriResult = results[i + 1];
+
+  //       if (tokenIdResult.error || uriResult.error || !tokenIdResult.result)
+  //         continue;
+
+  //       const tokenId = Number(tokenIdResult.result);
+  //       const uri = uriResult.result as string;
+
+  //       try {
+  //         // Normalize IPFS
+  //         const httpUri = uri.startsWith("ipfs://")
+  //           ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
+  //           : uri;
+
+  //         const res = await fetch(httpUri);
+  //         if (!res.ok) throw new Error("Metadata fetch failed");
+
+  //         const metadata = await res.json();
+
+  //         newNfts.push({
+  //           title: metadata.name || `NFT #${tokenId}`,
+  //           cover:
+  //             metadata.image?.replace(
+  //               "ipfs://",
+  //               "https://gateway.pinata.cloud/ipfs/"
+  //             ) || "",
+  //           media: metadata.animation_url, // for audio/video NFTs
+  //           owner: "?", // optional: can add ownerOf(tokenId) if you want
+  //           minted: true,
+  //           tokenId,
+  //         });
+  //       } catch (e) {
+  //         console.warn(`Failed metadata for #${tokenId}`, e);
+  //         // You can still show placeholder
+  //         newNfts.push({
+  //           title: `NFT #${tokenId}`,
+  //           cover: "",
+  //           media: "",
+  //           owner: "",
+  //           minted: true,
+  //           tokenId,
+  //         });
+  //       }
+  //     }
+
+  //     setAllNfts((prev) => [...prev, ...newNfts]);
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     setError("Failed to load more NFTs...");
+  //   } finally {
+  //     setLoadingMore(false);
+  //   }
+  // };
+  const loadPage = async (page: number,count:number =9) => {
     if (!publicClient) return;
-
+  
     const start = page * PAGE_SIZE;
-    const end = Math.min(start + PAGE_SIZE, totalSupply);
-    console.log(start >= end, start, end);
-    // if (start >= end) return;
     const realCountThisPage = Math.min(PAGE_SIZE, count - start);
-    console.log("Real count page", realCountThisPage);
-    console.log("current page from params", page);
-
-    if (realCountThisPage <= 0) return;
+  
+    console.log("Loading page", page);
+    console.log("Start index:", start);
+    console.log("Items to load this page:", realCountThisPage);
+    console.log("Total supply:", totalSupply);
+  
+    if (realCountThisPage <= 0) {
+      console.log("Nothing more to load");
+      return;
+    }
+  
     setLoadingMore(true);
-
+  
     try {
-      // Multicall tokenByIndex → tokenURI
-      console.log("test");
-      const calls = Array.from({ length: realCountThisPage }, (_, i) => {
+      const newNfts: NFTCardProps[] = [];
+  
+      // Sequential loading - safe for small collections (4-50 items)
+      for (let i = 0; i < realCountThisPage; i++) {
         const globalIndex = start + i;
-        return [
-          {
+  
+        try {
+          console.log(`Fetching token at global index ${globalIndex}...`);
+  
+          // 1. Get actual tokenId from enumeration
+          const tokenIdResult = await publicClient.readContract({
             address: CONTRACT_ADDRESS,
             abi: NFT_ABI,
             functionName: "tokenByIndex",
             args: [BigInt(globalIndex)],
-          } as const,
-          {
+          });
+  
+          const tokenId = Number(tokenIdResult);
+  
+          console.log(`→ Token ID #${tokenId} found at index ${globalIndex}`);
+  
+          // 2. Get tokenURI using the REAL tokenId
+          const uriResult = await publicClient.readContract({
             address: CONTRACT_ADDRESS,
             abi: NFT_ABI,
             functionName: "tokenURI",
-            args: [BigInt(globalIndex)], // we'll need tokenId later
-          } as const,
-        ];
-      }).flat();
-      console.log("calls", calls);
-      const results = await publicClient.multicall({ contracts: calls });
-      console.log("results", results);
-      const newNfts: NFTCardProps[] = [];
-
-      for (let i = 0; i < results.length; i += 2) {
-        const tokenIdResult = results[i];
-        const uriResult = results[i + 1];
-
-        if (tokenIdResult.error || uriResult.error || !tokenIdResult.result)
-          continue;
-
-        const tokenId = Number(tokenIdResult.result);
-        const uri = uriResult.result as string;
-
-        try {
+            args: [BigInt(tokenId)],  // ← IMPORTANT: use tokenId, not globalIndex!
+          });
+  
+          const uri = uriResult as string;
+          console.log(`→ URI for #${tokenId}:`, uri);
+  
           // Normalize IPFS
           const httpUri = uri.startsWith("ipfs://")
             ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
             : uri;
-
-          const res = await fetch(httpUri);
-          if (!res.ok) throw new Error("Metadata fetch failed");
-
-          const metadata = await res.json();
-
-          newNfts.push({
-            title: metadata.name || `NFT #${tokenId}`,
-            cover:
-              metadata.image?.replace(
-                "ipfs://",
-                "https://gateway.pinata.cloud/ipfs/"
-              ) || "",
-            media: metadata.animation_url, // for audio/video NFTs
-            owner: "?", // optional: can add ownerOf(tokenId) if you want
-            minted: true,
-            tokenId,
-          });
-        } catch (e) {
-          console.warn(`Failed metadata for #${tokenId}`, e);
-          // You can still show placeholder
-          newNfts.push({
-            title: `NFT #${tokenId}`,
-            cover: "",
-            media: "",
-            owner: "",
-            minted: true,
-            tokenId,
-          });
+  
+          // 3. Fetch metadata
+          try {
+            const res = await fetch(httpUri, { cache: "no-store" });
+            console.log(`Metadata fetch status for #${tokenId}: ${res.status}`);
+  
+            if (!res.ok) {
+              throw new Error(`Metadata HTTP ${res.status}`);
+            }
+  
+            const metadata = await res.json();
+  
+            newNfts.push({
+              title: metadata.name || `NFT #${tokenId}`,
+              cover:
+                metadata.image?.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/") || "",
+              media: metadata.animation_url,
+              owner: "?", // can add ownerOf later if needed
+              minted: true,
+              tokenId,
+            });
+  
+            console.log(`Successfully loaded NFT #${tokenId}`);
+          } catch (metaErr) {
+            console.warn(`Metadata fetch failed for #${tokenId}:`, metaErr);
+            // Fallback placeholder
+            newNfts.push({
+              title: `NFT #${tokenId} (metadata unavailable)`,
+              cover: "",
+              media: "",
+              owner: "",
+              minted: true,
+              tokenId,
+            });
+          }
+        } catch (indexErr) {
+          console.warn(`Failed to load token at index ${globalIndex}:`, indexErr);
+          // Optional: continue or add placeholder
         }
       }
-
-      setAllNfts((prev) => [...prev, ...newNfts]);
+  
+      if (newNfts.length > 0) {
+        setAllNfts((prev) => [...prev, ...newNfts]);
+        console.log(`Added ${newNfts.length} new NFTs`);
+      } else {
+        console.log("No valid NFTs loaded this page");
+      }
     } catch (err: any) {
-      console.error(err);
-      setError("Failed to load more NFTs...");
+      console.error("Page load failed:", err);
+      setError("Failed to load NFTs. Check console for details.");
     } finally {
       setLoadingMore(false);
     }
   };
-
   useEffect(() => {
     if (!publicClient) return;
   
