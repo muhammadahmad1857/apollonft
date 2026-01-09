@@ -1,26 +1,5 @@
 import { NextResponse } from "next/server";
 
-const PINATA_JWT = process.env.PINATA_JWT;
-const keyRestrictions = {
-  keyName: "Signed Upload JWT",
-  maxUses: 1,
-  permissions: {
-    endpoints: {
-      data: {
-        pinList: false,
-        userPinnedDataTotal: false,
-      },
-      pinning: {
-        pinFileToIPFS: true,
-        pinJSONToIPFS: true,
-        pinJobs: false,
-        unpin: false,
-        userPinPolicy: false,
-      },
-    },
-  },
-};
-
 export async function POST() {
   try {
     const options = {
@@ -28,33 +7,48 @@ export async function POST() {
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        authorization: `Bearer ${PINATA_JWT}`,
+        authorization: `Bearer ${process.env.PINATA_JWT}`,
       },
-      body: JSON.stringify(keyRestrictions),
+      body: JSON.stringify({
+        keyname: `Signed Upload JWT - ${Date.now()}`, // unique name
+        permissions: {
+          admin: true, // for scoped key
+          endpoints: {
+            pinning: {
+              pinFileToIPFS: true,
+              pinJSONToIPFS: true,
+            },
+            data: {
+              pinList: true,
+            },
+          },
+        },
+        maxUses: 1,
+      }),
     };
 
-    const jwtResponse = await fetch(
-      "https://api.pinata.cloud/users/generateApiKey",
-      options
-    );
-    console.log("jwtResponse", jwtResponse);
+    // Try the newer documented endpoint first
+    const url = "https://api.pinata.cloud/v3/api_keys"; // ← updated
+    // Fallback: const url = "https://api.pinata.cloud/users/generateApiKey";
+
+    const jwtResponse = await fetch(url, options);
+
+    console.log("Response status:", jwtResponse.status);
+    console.log("Response headers:", Object.fromEntries(jwtResponse.headers));
 
     if (!jwtResponse.ok) {
-      const error = await jwtResponse.text();
-      console.log("Pinata JWT generation error:", error);
+      const errorText = await jwtResponse.text();
+      console.error("Pinata error:", errorText);
       return NextResponse.json(
-        { error: "Failed to generate signed JWT" },
-        { status: 500 }
+        { error: "Failed to generate JWT", details: errorText },
+        { status: jwtResponse.status }
       );
     }
 
     const json = await jwtResponse.json();
-    console.log("json", json);
-    const { JWT } = json;
-
-    return NextResponse.json({ JWT });
+    return NextResponse.json({ JWT: json.JWT || json.token }); // adjust based on response shape
   } catch (e) {
-    console.log("Error generating JWT:", e);
+    console.error("Server error:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
