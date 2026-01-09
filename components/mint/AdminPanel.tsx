@@ -135,16 +135,16 @@ export function AdminPanel({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="overflow-hidden border-amber-200 bg-amber-50 shadow-lg dark:border-amber-900 dark:bg-amber-950/20">
+        <Card>
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50">
-              <Wallet className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900/50">
+              <Wallet className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-amber-900 dark:text-amber-100">
+              <h3 className="font-semibold text-yellow-900 dark:text-yellow-100">
                 Wallet Not Connected
               </h3>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
                 Please connect your wallet to access admin features
               </p>
             </div>
@@ -162,7 +162,7 @@ export function AdminPanel({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="overflow-hidden border-red-200 bg-red-50 shadow-lg dark:border-red-900 dark:bg-red-950/20">
+        <Card>
           <CardContent className="flex items-center gap-4 p-6">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/50">
               <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -188,19 +188,19 @@ export function AdminPanel({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="overflow-hidden border-violet-200 shadow-lg dark:border-violet-800">
-        <CardHeader className="border-b border-violet-200 bg-violet-50/50 dark:border-violet-800 dark:bg-violet-950/10">
+      <Card>
+        <CardHeader>
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
             className="flex items-center gap-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600 dark:bg-violet-500">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+              <CardTitle className="text-2xl font-bold text-zinc-900 dark:text-white">
                 Admin Panel
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
@@ -220,22 +220,22 @@ export function AdminPanel({
             >
               <Label
                 htmlFor="baseURI"
-                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                className="text-sm font-semibold text-zinc-700 dark:text-zinc-300"
               >
                 Base URI
               </Label>
               <div className="relative">
-                <Link className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Link className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                 <Input
                   id="baseURI"
                   placeholder="https://api.example.com/metadata/"
                   value={baseURI}
                   onChange={(e) => setBaseURI(e.target.value)}
                   disabled={isBusy}
-                  className="pl-10 transition-all focus:ring-2 focus:ring-violet-500/20"
+                  className="pl-10 transition-all focus:ring-2 focus:ring-cyan-500/20"
                 />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 This base URI will be prepended to token IDs for auto-generated
                 metadata URIs
               </p>
@@ -249,7 +249,7 @@ export function AdminPanel({
               <Button
                 type="submit"
                 disabled={isBusy}
-                className="w-full bg-violet-600 text-white shadow-md transition-all hover:bg-violet-700 hover:shadow-lg disabled:opacity-50"
+                className="w-full bg-cyan-500 text-white shadow-md transition-all hover:bg-cyan-600 hover:shadow-lg disabled:opacity-50"
                 size="lg"
               >
                 {isBusy ? (

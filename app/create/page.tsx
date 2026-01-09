@@ -165,7 +165,7 @@ export default function CreatePage() {
         toast.success("Draft saved!");
       }
     } catch (error) {
-      console.error("Save error:", error);
+      console.log("Save error:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to save draft"
       );
@@ -191,110 +191,120 @@ export default function CreatePage() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <div className="mx-auto max-w-4xl px-6 py-12">
         {/* Page Header */}
-       { isConnected ? <>
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          className="mb-12"
-        >
-          <h1 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-            Create New NFT
-          </h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            Upload your audio and prepare metadata before minting
-          </p>
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="mt-3 h-0.5 bg-linear-to-r from-cyan-500 to-blue-500"
-          />
-        </motion.div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-24">
-          <TabsList className="grid w-full grid-cols-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-transparent p-1">
-            <TabsTrigger
-              value="upload"
-              disabled={false}
-              className="rounded-full data-[state=active]:bg-cyan-500 data-[state=active]:text-white"
-            >
-              Upload File
-            </TabsTrigger>
-            <TabsTrigger
-              value="metadata"
-              disabled={!uploadedFile}
-              className="rounded-full data-[state=active]:bg-cyan-500 data-[state=active]:text-white disabled:opacity-50"
-            >
-              Metadata
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="upload" className="mt-8">
+        {isConnected ? (
+          <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mb-12"
             >
-              <FileUpload
-                onUploadComplete={handleFileUpload}
-                uploadedFile={uploadedFile}
+              <h1 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                Create New NFT
+              </h1>
+              <p className="text-zinc-500 dark:text-zinc-400">
+                Upload your audio and prepare metadata before minting
+              </p>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+                className="mt-3 h-0.5 bg-linear-to-r from-cyan-500 to-blue-500"
               />
             </motion.div>
-          </TabsContent>
 
-          <TabsContent value="metadata" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
+            {/* Tabs */}
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="mb-24"
             >
-              <MetadataForm
-                onMetadataChange={handleMetadataChange}
-                initialData={metadata}
-              />
-            </motion.div>
-          </TabsContent>
-        </Tabs>
+              <TabsList className="grid w-full grid-cols-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-transparent p-1">
+                <TabsTrigger
+                  value="upload"
+                  disabled={isSaving}
+                  className="rounded-full data-[state=active]:bg-cyan-500 data-[state=active]:text-white"
+                >
+                  Upload File
+                </TabsTrigger>
+                <TabsTrigger
+                  value="metadata"
+                  disabled={isSaving}
+                  className="rounded-full data-[state=active]:bg-cyan-500 data-[state=active]:text-white disabled:opacity-50"
+                >
+                  Metadata
+                </TabsTrigger>
+              </TabsList>
 
-        {/* Footer Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="fixed bottom-0 left-0 right-0 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/80 backdrop-blur-sm z-40"
-        >
-          <div className="mx-auto max-w-4xl px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                onClick={handleReset}
-                className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-              >
-                Reset
-              </Button>
-              <Button
-                onClick={saveDraft}
-                disabled={!canSaveDraft || isSaving}
-                className="bg-cyan-500 text-white hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Draft"
-                )}
-              </Button>
+              <TabsContent value="upload" className="mt-8">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FileUpload
+                    onUploadComplete={handleFileUpload}
+                    uploadedFile={uploadedFile}
+                  />
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="metadata" className="mt-8">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <MetadataForm
+                    onMetadataChange={handleMetadataChange}
+                    initialData={metadata}
+                  />
+                </motion.div>
+              </TabsContent>
+            </Tabs>
+
+            {/* Footer Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="fixed bottom-0 left-0 right-0 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/80 backdrop-blur-sm z-40"
+            >
+              <div className="mx-auto max-w-4xl px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="ghost"
+                    onClick={handleReset}
+                    className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    onClick={saveDraft}
+                    disabled={!canSaveDraft || isSaving}
+                    className="bg-cyan-500 text-white hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Draft"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-2xl font-bold">
+              Please connect your wallet to continue
             </div>
+            <ConnectButton showBalance />
           </div>
-        </motion.div> 
-        </>: <div className="flex items-center justify-center h-screen">
-          <div className="text-2xl font-bold">Please connect your wallet to continue</div>
-          <ConnectButton showBalance />
-        </div>}
+        )}
       </div>
     </div>
   );

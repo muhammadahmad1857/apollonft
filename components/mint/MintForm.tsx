@@ -125,19 +125,19 @@ export function MintForm({ contractAddress }: MintFormProps) {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <Card className="shadow-lg">
-        <CardHeader className="bg-purple-50/50 dark:bg-purple-950/10 border-b border-gray-200 dark:border-gray-800">
+      <Card>
+        <CardHeader>
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
             className="flex items-center gap-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600 dark:bg-purple-500">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+              <CardTitle className="text-2xl font-bold text-zinc-900 dark:text-white">
                 Mint Single NFT
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
@@ -157,22 +157,22 @@ export function MintForm({ contractAddress }: MintFormProps) {
             >
               <Label
                 htmlFor="tokenURI"
-                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                className="text-sm font-semibold text-zinc-700 dark:text-zinc-300"
               >
                 Metadata URI
               </Label>
               <div className="relative">
-                <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                 <Input
                   id="tokenURI"
                   placeholder="https://ipfs.io/ipfs/..."
                   value={tokenURI}
                   onChange={(e) => setTokenURI(e.target.value)}
                   disabled={isBusy}
-                  className="pl-10 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  className="pl-10 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                 />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 Enter an IPFS hash or HTTPS URL pointing to your NFT metadata
                 JSON
               </p>
@@ -186,7 +186,7 @@ export function MintForm({ contractAddress }: MintFormProps) {
               <Button
                 type="submit"
                 disabled={!isConnected || isBusy}
-                className="w-full bg-purple-600 text-white shadow-md transition-all hover:bg-purple-700 hover:shadow-lg disabled:opacity-50"
+                className="w-full bg-cyan-500 text-white shadow-md transition-all hover:bg-cyan-600 hover:shadow-lg disabled:opacity-50"
                 size="lg"
               >
                 {isBusy ? (

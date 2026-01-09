@@ -17,8 +17,8 @@ const CONTRACT_ADDRESS = (process.env.VITE_CONTRACT_ADDRESS ||
 // Replace with contract owner address for admin features
 const CONTRACT_OWNER = process.env.VITE_CONTRACT_OWNER;
 
-function App() {
-  const { address, isConnected } = useAccount();
+function MintPage() {
+  const { isConnected } = useAccount();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"mint" | "batch" | "admin">(
     "mint"
@@ -44,7 +44,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <motion.div
@@ -57,7 +57,7 @@ function App() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-4 py-1.5 text-sm font-medium text-purple-700 dark:border-purple-800 dark:bg-purple-950/50 dark:text-purple-300"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-4 py-1.5 text-sm font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-300"
           >
             <Wallet className="h-4 w-4" />
             <span>Web3 NFT Minting Platform</span>
@@ -66,7 +66,7 @@ function App() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-4 text-5xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl"
+            className="mb-4 text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-6xl"
           >
             Create Your Digital Collection
           </motion.h1>
@@ -74,7 +74,7 @@ function App() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mx-auto max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-300"
+            className="mx-auto max-w-2xl text-lg leading-8 text-zinc-500 dark:text-zinc-400"
           >
             Mint single or batch NFTs effortlessly. Set custom metadata URIs,
             manage your collection, and bring your digital art to life on the
@@ -89,13 +89,13 @@ function App() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mb-10 flex justify-center"
         >
-          <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="inline-flex rounded-xl border border-zinc-200 bg-white p-1.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <button
               onClick={() => setActiveTab("mint")}
               className={`relative rounded-lg px-6 py-2.5 text-sm font-semibold transition-all duration-200 ${
                 activeTab === "mint"
-                  ? "bg-purple-600 text-white shadow-md"
-                  : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  ? "bg-cyan-500 text-white shadow-md"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
               }`}
             >
               Single Mint
@@ -104,8 +104,8 @@ function App() {
               onClick={() => setActiveTab("batch")}
               className={`relative rounded-lg px-6 py-2.5 text-sm font-semibold transition-all duration-200 ${
                 activeTab === "batch"
-                  ? "bg-pink-600 text-white shadow-md"
-                  : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  ? "bg-cyan-500 text-white shadow-md"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
               }`}
             >
               Batch Mint
@@ -114,8 +114,8 @@ function App() {
               onClick={() => setActiveTab("admin")}
               className={`relative rounded-lg px-6 py-2.5 text-sm font-semibold transition-all duration-200 ${
                 activeTab === "admin"
-                  ? "bg-violet-600 text-white shadow-md"
-                  : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  ? "bg-cyan-500 text-white shadow-md"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
               }`}
             >
               Admin Panel
@@ -157,19 +157,19 @@ function App() {
             transition={{ duration: 0.5, delay: 0.5 }}
             className="lg:col-span-1"
           >
-            <div className="sticky top-24 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div className="sticky top-24 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
               <div className="mb-4 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600 dark:bg-purple-500">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500">
                   <Wallet className="h-4 w-4 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
                   Contract Information
                 </h3>
               </div>
               <div className="space-y-4">
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/50">
+                <div className="rounded-lg border border-zinc-200 bg-zinc-100 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                       Contract Address
                     </p>
                     <Button
@@ -187,14 +187,14 @@ function App() {
                       )}
                     </Button>
                   </div>
-                  <p className="break-all font-mono text-xs leading-relaxed text-gray-900 dark:text-gray-100">
+                  <p className="break-all font-mono text-xs leading-relaxed text-zinc-900 dark:text-zinc-100">
                     {CONTRACT_ADDRESS}
                   </p>
                 </div>
                 {CONTRACT_OWNER && (
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/50">
+                  <div className="rounded-lg border border-zinc-200 bg-zinc-100 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
                     <div className="mb-2 flex items-center justify-between">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                         Owner Address
                       </p>
                       <Button
@@ -210,7 +210,7 @@ function App() {
                         )}
                       </Button>
                     </div>
-                    <p className="break-all font-mono text-xs leading-relaxed text-gray-900 dark:text-gray-100">
+                    <p className="break-all font-mono text-xs leading-relaxed text-zinc-900 dark:text-zinc-100">
                       {CONTRACT_OWNER}
                     </p>
                   </div>
@@ -224,4 +224,4 @@ function App() {
   );
 }
 
-export default App;
+export default MintPage;

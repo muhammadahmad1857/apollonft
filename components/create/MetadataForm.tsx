@@ -80,7 +80,7 @@ export function MetadataForm({ onMetadataChange, initialData }: MetadataFormProp
       handleFieldChange();
       toast.success("Cover image uploaded!");
     } catch (error) {
-      console.error("Cover upload error:", error);
+      console.log("Cover upload error:", error);
       toast.error("Failed to upload cover image");
     } finally {
       setIsUploadingCover(false);

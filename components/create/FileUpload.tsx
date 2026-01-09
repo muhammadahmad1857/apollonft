@@ -34,19 +34,18 @@ export function FileUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const acceptedTypes = [".mp3", ".wav", ".mp4"];
-
-  const uploadToPinata = async (file: File) => {
+const uploadToPinata = async (file: File) => {
     try {
       setIsUploading(true);
       setUploadProgress(0);
 
       // Get signed JWT
       const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
+      console.log("JWT", JWT);
       if (!jwtRes.ok) {
         throw new Error("Failed to get upload token");
       }
       const { JWT } = await jwtRes.json();
-
       // Prepare form data
       const formData = new FormData();
       formData.append("file", file);
@@ -62,12 +61,12 @@ export function FileUpload({
           body: formData,
         }
       );
-
+      console.log("uploadRes", uploadRes);
       if (!uploadRes.ok) {
         const error = await uploadRes.text();
         throw new Error(error || "Upload failed");
       }
-
+      console.log("uploadRes.json()", uploadRes.json());
       const json = await uploadRes.json();
       const ipfsHash = json.IpfsHash;
       const ipfsUrl = `ipfs://${ipfsHash}`;
@@ -83,7 +82,7 @@ export function FileUpload({
       onUploadComplete(ipfsUrl, fileExtension, file.name);
       toast.success("File uploaded successfully!");
     } catch (error) {
-      console.error("Upload error:", error);
+      console.log("Upload error:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to upload file"
       );

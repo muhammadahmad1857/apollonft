@@ -140,19 +140,19 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="overflow-hidden border-gray-200 shadow-lg dark:border-gray-800">
-        <CardHeader className="border-b border-gray-200 bg-pink-50/50 dark:border-gray-800 dark:bg-pink-950/10">
+      <Card>
+        <CardHeader>
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
             className="flex items-center gap-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-600 dark:bg-pink-500">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500">
               <Layers className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+              <CardTitle className="text-2xl font-bold text-zinc-900 dark:text-white">
                 Batch Mint NFTs
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
@@ -171,22 +171,22 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
             >
               <Label
                 htmlFor="batchTokenURI"
-                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                className="text-sm font-semibold text-zinc-700 dark:text-zinc-300"
               >
                 Metadata URI
               </Label>
               <div className="relative">
-                <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Image className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                 <Input
                   id="batchTokenURI"
                   placeholder="https://example.com/metadata.json"
                   value={tokenURI}
                   onChange={(e) => setTokenURI(e.target.value)}
                   disabled={isBusy}
-                  className="pl-10 transition-all focus:ring-2 focus:ring-pink-500/20"
+                  className="pl-10 transition-all focus:ring-2 focus:ring-cyan-500/20"
                 />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 All NFTs in this batch will use the same metadata URI
               </p>
             </motion.div>
@@ -199,12 +199,12 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
             >
               <Label
                 htmlFor="quantity"
-                className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                className="text-sm font-semibold text-zinc-700 dark:text-zinc-300"
               >
                 Quantity
               </Label>
               <div className="relative">
-                <Hash className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Hash className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                 <Input
                   id="quantity"
                   type="number"
@@ -213,10 +213,10 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   disabled={isBusy}
-                  className="pl-10 transition-all focus:ring-2 focus:ring-pink-500/20"
+                  className="pl-10 transition-all focus:ring-2 focus:ring-cyan-500/20"
                 />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 Maximum 100 NFTs per batch transaction
               </p>
             </motion.div>
@@ -229,7 +229,7 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
               <Button
                 type="submit"
                 disabled={!isConnected || isBusy}
-                className="w-full bg-pink-600 text-white shadow-md transition-all hover:bg-pink-700 hover:shadow-lg disabled:opacity-50"
+                className="w-full bg-cyan-500 text-white shadow-md transition-all hover:bg-cyan-600 hover:shadow-lg disabled:opacity-50"
                 size="lg"
               >
                 {isBusy ? (
