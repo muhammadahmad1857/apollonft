@@ -1,0 +1,256 @@
+"use client";
+
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
+interface MetadataFormProps {
+  onMetadataChange: (metadata: {
+    name: string;
+    title: string;
+    description: string;
+    coverImageUrl?: string;
+  }) => void;
+  initialData?: {
+    name: string;
+    title: string;
+    description: string;
+    coverImageUrl?: string;
+  };
+}
+
+export function MetadataForm({ onMetadataChange, initialData }: MetadataFormProps) {
+  const [name, setName] = useState(initialData?.name || "");
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [coverImageUrl, setCoverImageUrl] = useState(initialData?.coverImageUrl);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFieldChange = useCallback(() => {
+    onMetadataChange({
+      name,
+      title,
+      description,
+      coverImageUrl,
+    });
+  }, [name, title, description, coverImageUrl, onMetadataChange]);
+
+  const uploadCoverImage = async (file: File) => {
+    try {
+      setIsUploadingCover(true);
+
+      // Get signed JWT
+      const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
+      if (!jwtRes.ok) {
+        throw new Error("Failed to get upload token");
+      }
+      const { JWT } = await jwtRes.json();
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Upload to Pinata
+      const uploadRes = await fetch(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${JWT}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!uploadRes.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const json = await uploadRes.json();
+      const ipfsHash = json.IpfsHash;
+      const ipfsUrl = `ipfs://${ipfsHash}`;
+
+      setCoverImageUrl(ipfsUrl);
+      handleFieldChange();
+      toast.success("Cover image uploaded!");
+    } catch (error) {
+      console.error("Cover upload error:", error);
+      toast.error("Failed to upload cover image");
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
+
+  const handleCoverFile = useCallback(
+    (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload an image file");
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Image size must be less than 10MB");
+        return;
+      }
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      uploadCoverImage(file);
+    },
+    []
+  );
+
+  const handleCoverDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        handleCoverFile(file);
+      }
+    },
+    [handleCoverFile]
+  );
+
+  const removeCover = () => {
+    setCoverImageUrl(undefined);
+    setCoverPreview(null);
+    handleFieldChange();
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <Label htmlFor="name">Name</Label>
+        <Input
+          id="name"
+          placeholder="Internal name (e.g., my-audio-001)"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            handleFieldChange();
+          }}
+          className="bg-transparent"
+        />
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Used internally or as NFT identifier
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
+          placeholder="Display title (shown in marketplace)"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            handleFieldChange();
+          }}
+          className="bg-transparent text-lg"
+        />
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          This is what users will see
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          placeholder="Describe your audio NFT..."
+          value={description}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            handleFieldChange();
+          }}
+          maxLength={500}
+          className="bg-transparent resize-none"
+        />
+        <div className="flex justify-between">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Tell the story behind your creation
+          </p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            {description.length}/500
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Cover Image (Optional)</Label>
+        <AnimatePresence mode="wait">
+          {coverImageUrl || coverPreview ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative group"
+            >
+              <div className="relative h-48 w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <img
+                  src={coverPreview || `https://yellow-random-swordfish-139.mypinata.cloud/ipfs/${coverImageUrl?.replace("ipfs://", "")}`}
+                  alt="Cover preview"
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  onClick={removeCover}
+                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-500/90 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+                {coverImageUrl}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onDrop={handleCoverDrop}
+              onDragOver={(e) => e.preventDefault()}
+              onDragLeave={(e) => e.preventDefault()}
+              onClick={() => fileInputRef.current?.click()}
+              className="relative cursor-pointer rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 p-8 text-center transition-all hover:border-cyan-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleCoverFile(file);
+                }}
+                className="hidden"
+              />
+
+              {isUploadingCover ? (
+                <Loader2 className="mx-auto h-8 w-8 animate-spin text-cyan-500" />
+              ) : (
+                <>
+                  <ImageIcon className="mx-auto h-8 w-8 text-zinc-400 dark:text-zinc-500" />
+                  <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    Drag & drop or click to upload
+                  </p>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
