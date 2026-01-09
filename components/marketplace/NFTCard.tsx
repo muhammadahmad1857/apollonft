@@ -10,9 +10,10 @@ export interface NFTCardProps {
   media: string;
   owner: string;
   minted: boolean;
+  tokenId: number;
 }
 
-const NFTCard = ({ title, cover, media, owner }: NFTCardProps) => {
+const NFTCard = ({ title, cover, media, owner, tokenId }: NFTCardProps) => {
   const shortOwner = `${owner.slice(0, 6)}...${owner.slice(-4)}`;
 
   const cardVariants = {
@@ -53,7 +54,7 @@ const NFTCard = ({ title, cover, media, owner }: NFTCardProps) => {
       <div className="p-4">
         <h3 className="font-semibold text-lg truncate">{title}</h3>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          By {shortOwner}
+          By {shortOwner} #{tokenId}
         </p>
         <div className="mt-4">
           <audio controls controlsList="nodownload" className="w-full h-10">
