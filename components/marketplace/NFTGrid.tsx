@@ -37,14 +37,15 @@ const NFTGrid = () => {
     const start = page * PAGE_SIZE;
     const end = Math.min(start + PAGE_SIZE, totalSupply);
     console.log(start >= end,start,end);
-    if (start >= end) return;
-
+    // if (start >= end) return;
+    const realCountThisPage = Math.min(PAGE_SIZE, totalSupply - start);
+    if (realCountThisPage <= 0) return;
     setLoadingMore(true);
 
     try {
       // Multicall tokenByIndex → tokenURI
       console.log("test");
-      const calls = Array.from({ length: end - start }, (_, i) => {
+      const calls = Array.from({ length: realCountThisPage }, (_, i) => {
         const globalIndex = start + i;
         return [
           {
