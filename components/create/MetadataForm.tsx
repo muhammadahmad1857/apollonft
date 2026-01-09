@@ -73,8 +73,8 @@ export function MetadataForm({
       // if (!jwtRes.ok) {
       //   throw new Error("Failed to get upload token");
       // }
-      const  JWT = await process.env.NEXT_PUBLIC_PINATA_JWT;
-
+      const  JWT =  process.env.NEXT_PUBLIC_PINATA_JWT;
+      console.log(JWT)
       // Prepare form data
       const formData = new FormData();
       formData.append("file", file);
