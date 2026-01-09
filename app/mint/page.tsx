@@ -11,11 +11,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 // Replace with your deployed contract address
-const CONTRACT_ADDRESS = (process.env.VITE_CONTRACT_ADDRESS ||
+const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
   "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
 // Replace with contract owner address for admin features
-const CONTRACT_OWNER = process.env.VITE_CONTRACT_OWNER;
+const CONTRACT_OWNER = process.env.NEXT_PUBLIC_CONTRACT_OWNER;
 
 function MintPage() {
   const { isConnected } = useAccount();

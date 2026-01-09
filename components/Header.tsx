@@ -19,7 +19,7 @@ export function Header() {
       className="sticky top-0 z-50 w-full border-b border-zinc-200 dark:border-zinc-800 bg-transparent backdrop-blur-sm"
     >
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-[120px]">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -83,7 +83,7 @@ export function Header() {
                 <Moon className="h-5 w-5" />
               )}
             </Button>
-            <ConnectButton showBalance  />
+            <ConnectButton showBalance />
           </motion.div>
         </div>
       </div>
