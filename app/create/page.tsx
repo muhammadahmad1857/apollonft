@@ -79,9 +79,7 @@ export default function CreatePage() {
         throw error;
       }
 
-      if (data) {
-        setDraftId(data.id);
-      }
+     
       toast.success("File uploaded and draft created!");
       // Enable metadata tab after upload
       if (activeTab === "upload") {
@@ -154,11 +152,12 @@ export default function CreatePage() {
       // Update Supabase with metadata URL
       const { error } = await supabase
         .from("files")
-        .update({
-          name: metadata.name, // Update name from metadata
-          metadataUrl: metadataIpfsUrl,
+        .insert({
+          type: ".json", // Update name from metadata
+          ipdsUrl: metadataIpfsUrl,
+          isMinted:false,
+          waller_id:address
         })
-        .eq("id", draftId);
 
       if (error) throw error;
       toast.success("Draft updated!");
