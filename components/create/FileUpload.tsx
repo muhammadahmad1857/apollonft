@@ -46,8 +46,8 @@ const uploadToPinata = async (file: File) => {
       //   throw new Error("Failed to get upload token");
       // }
       // const { JWT } = await jwtRes.json();
-      // console.log("JWT", JWT);
       const JWT = process.env.NEXT_PUBLIC_PINATA_JWT
+      console.log("JWT", JWT);
       // Prepare form data
       const formData = new FormData();
       formData.append("file", file);
