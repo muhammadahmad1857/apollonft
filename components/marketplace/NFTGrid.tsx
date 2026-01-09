@@ -3,14 +3,15 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { usePublicClient } from "wagmi";
-import NFTCard,{  NFTCardProps } from "./NFTCard";
+import NFTCard, { NFTCardProps } from "./NFTCard";
 import SkeletonCards from "./SkeletonCards";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { erc721Abi } from "viem";
+import { NFT_ABI } from "@/lib/config/abi.config";
 
 // ← CHANGE THIS!
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
+const CONTRACT_ADDRESS = process.env
+  .NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
 
 // Recommended: limit how many we load per page
 const PAGE_SIZE = 12;
@@ -46,13 +47,13 @@ const NFTGrid = () => {
         return [
           {
             address: CONTRACT_ADDRESS,
-            abi: erc721Abi,
+            abi: NFT_ABI,
             functionName: "tokenByIndex",
             args: [BigInt(globalIndex)],
           } as const,
           {
             address: CONTRACT_ADDRESS,
-            abi: erc721Abi,
+            abi: NFT_ABI,
             functionName: "tokenURI",
             args: [BigInt(globalIndex)], // we'll need tokenId later
           } as const,
@@ -67,7 +68,8 @@ const NFTGrid = () => {
         const tokenIdResult = results[i];
         const uriResult = results[i + 1];
 
-        if (tokenIdResult.error || uriResult.error || !tokenIdResult.result) continue;
+        if (tokenIdResult.error || uriResult.error || !tokenIdResult.result)
+          continue;
 
         const tokenId = Number(tokenIdResult.result);
         const uri = uriResult.result as string;
@@ -85,7 +87,11 @@ const NFTGrid = () => {
 
           newNfts.push({
             title: metadata.name || `NFT #${tokenId}`,
-            cover: metadata.image?.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/") || "",
+            cover:
+              metadata.image?.replace(
+                "ipfs://",
+                "https://gateway.pinata.cloud/ipfs/"
+              ) || "",
             media: metadata.animation_url, // for audio/video NFTs
             owner: "?", // optional: can add ownerOf(tokenId) if you want
             minted: true,
@@ -124,7 +130,7 @@ const NFTGrid = () => {
 
         const supply = await publicClient.readContract({
           address: CONTRACT_ADDRESS,
-          abi: erc721Abi,
+          abi: NFT_ABI,
           functionName: "totalSupply",
         });
         console.log("supply", supply);
