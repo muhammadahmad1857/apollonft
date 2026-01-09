@@ -25,7 +25,7 @@ export function CTASection() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="relative rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 p-[2px]"
+          className="relative rounded-2xl bg-linear-to-r from-cyan-500 to-blue-500 p-[2px]"
         >
           <div className="rounded-2xl bg-zinc-100 dark:bg-zinc-900 p-12 text-center">
             <h2 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">

@@ -1,11 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Header } from "@/components/Header";
+import { useState } from "react";
 import { MintForm } from "@/components/mint/MintForm";
 import { BatchMintForm } from "@/components/mint/BatchMintForm";
 import { AdminPanel } from "@/components/mint/AdminPanel";
-import "../../App.css";
-import { useTheme } from "next-themes";
 import { Copy, CheckCircle2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";

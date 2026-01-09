@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useInView } from "motion/react";
+import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Music } from "lucide-react";
 

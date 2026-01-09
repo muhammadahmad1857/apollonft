@@ -5,19 +5,19 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi";
 import { toast } from "sonner";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from "./ui/card";
-import { Label } from "./ui/label";
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Shield, Loader2, Link, AlertCircle, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
-import { NFT_ABI } from "../config/abi.config.ts";
+import { NFT_ABI } from "@/lib/config/abi.config";
 import type { BaseError } from "viem";
 
 interface AdminPanelProps {

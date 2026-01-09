@@ -14,7 +14,7 @@ export function HeroSection() {
           transition={{ duration: 0.4, ease: "easeInOut" }}
           className="text-4xl font-semibold leading-tight tracking-tight md:text-6xl"
         >
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
             Mint Your Audio as NFTs
           </span>
         </motion.h1>

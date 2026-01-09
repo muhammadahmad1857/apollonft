@@ -12,14 +12,14 @@ import { createClient } from "@/lib/config/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-interface FileData {
-  id?: string;
-  wallet_id: string;
-  ipfsUrl: string;
-  type: ".mp3" | ".mp4" | ".wav";
-  createdAt?: Date;
-  isMinted: boolean;
-}
+// interface FileData {
+//   id?: string;
+//   wallet_id: string;
+//   ipfsUrl: string;
+//   type: ".mp3" | ".mp4" | ".wav";
+//   createdAt?: Date;
+//   isMinted: boolean;
+// }
 
 export default function CreatePage() {
   const { address, isConnected } = useAccount();
@@ -206,7 +206,7 @@ export default function CreatePage() {
             initial={{ width: 0 }}
             animate={{ width: "100%" }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="mt-3 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="mt-3 h-0.5 bg-linear-to-r from-cyan-500 to-blue-500"
           />
         </motion.div>
 

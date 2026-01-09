@@ -6,17 +6,17 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi";
 import { toast } from "sonner";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from "./ui/card";
-import { Label } from "./ui/label";
-import { NFT_ABI } from "../config/abi.config";
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { NFT_ABI } from "@/lib/config/abi.config";
 import { Image, Loader2, Layers, Hash } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BaseError } from "viem";
