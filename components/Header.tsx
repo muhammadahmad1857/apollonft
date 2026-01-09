@@ -37,7 +37,21 @@ export function Header() {
               asChild
               className="transition-all hover:scale-[1.03] hover:text-cyan-500"
             >
-              <Link href="/mint">Create</Link>
+              <Link href="/mint">Mint</Link>
+            </Button>
+            <Button
+              variant="ghost"
+              asChild
+              className="transition-all hover:scale-[1.03] hover:text-cyan-500"
+            >
+              <Link href="/files">Files</Link>
+            </Button>
+            <Button
+              variant="ghost"
+              asChild
+              className="transition-all hover:scale-[1.03] hover:text-cyan-500"
+            >
+              <Link href="/create">Create</Link>
             </Button>
             <Button
               variant="ghost"
@@ -69,7 +83,7 @@ export function Header() {
                 <Moon className="h-5 w-5" />
               )}
             </Button>
-            <ConnectButton  />
+            <ConnectButton showBalance  />
           </motion.div>
         </div>
       </div>

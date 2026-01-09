@@ -1,11 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MintForm } from "@/components/mint/MintForm";
 import { BatchMintForm } from "@/components/mint/BatchMintForm";
 import { AdminPanel } from "@/components/mint/AdminPanel";
 import { Copy, CheckCircle2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // Replace with your deployed contract address
 const CONTRACT_ADDRESS = (process.env.VITE_CONTRACT_ADDRESS ||
@@ -15,11 +18,19 @@ const CONTRACT_ADDRESS = (process.env.VITE_CONTRACT_ADDRESS ||
 const CONTRACT_OWNER = process.env.VITE_CONTRACT_OWNER;
 
 function App() {
+  const { address, isConnected } = useAccount();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"mint" | "batch" | "admin">(
     "mint"
   );
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [copiedOwner, setCopiedOwner] = useState(false);
+  useEffect(() => {
+    if (!isConnected) {
+      toast.info("Please connect your wallet to continue");
+      router.push("/");
+    }
+  }, [isConnected, router]);
 
   const copyToClipboard = (text: string, type: "address" | "owner") => {
     navigator.clipboard.writeText(text);
