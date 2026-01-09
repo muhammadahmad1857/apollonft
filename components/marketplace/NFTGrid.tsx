@@ -60,7 +60,7 @@ const NFTGrid = () => {
       }).flat();
 
       const results = await publicClient.multicall({ contracts: calls });
-
+      console.log("results", results);
       const newNfts: NFTCardProps[] = [];
 
       for (let i = 0; i < results.length; i += 2) {
@@ -127,8 +127,9 @@ const NFTGrid = () => {
           abi: erc721Abi,
           functionName: "totalSupply",
         });
-
+        console.log("supply", supply);
         const count = Number(supply);
+        console.log("count", count);
         setTotalSupply(count);
 
         if (count === 0) {
