@@ -31,17 +31,17 @@ const NFTGrid = () => {
     [allNfts.length, totalSupply]
   );
 
-  const loadPage = async (page: number) => {
+  const loadPage = async (page: number, count: number = 0) => {
     if (!publicClient) return;
 
     const start = page * PAGE_SIZE;
     const end = Math.min(start + PAGE_SIZE, totalSupply);
     console.log(start >= end, start, end);
     // if (start >= end) return;
-    const realCountThisPage = Math.min(PAGE_SIZE, totalSupply - start);
+    const realCountThisPage = Math.min(PAGE_SIZE, count - start);
     console.log("Real count page", realCountThisPage);
-    console.log("current page from params",page);
-    
+    console.log("current page from params", page);
+
     if (realCountThisPage <= 0) return;
     setLoadingMore(true);
 
@@ -128,41 +128,45 @@ const NFTGrid = () => {
 
   useEffect(() => {
     if (!publicClient) return;
-
+  
     const init = async () => {
       try {
         setLoading(true);
         setError(null);
-
+  
         const supply = await publicClient.readContract({
           address: CONTRACT_ADDRESS,
           abi: NFT_ABI,
           functionName: "totalSupply",
         });
+  
         console.log("supply", supply);
         const count = Number(supply);
         console.log("count", count);
+  
+        // Set state for UI/rendering
         setTotalSupply(count);
-
+  
         if (count === 0) {
           setAllNfts([]);
+          setLoading(false);
           return;
         }
-
-        // Load first page
-        await loadPage(0);
+  
+        // IMPORTANT: Use the fresh 'count' variable here, NOT the state!
+        await loadPage(0, count);   // ← pass count explicitly
+  
         setCurrentPage(1);
       } catch (err: any) {
         console.error(err);
-        setError("Couldn't read total supply. Is the contract deployed?");
+        setError("Couldn't read total supply...");
       } finally {
         setLoading(false);
       }
     };
-
+  
     init();
   }, [publicClient]);
-
   // Auto-load more when user clicks "Load More"
   const handleLoadMore = () => {
     loadPage(currentPage);
