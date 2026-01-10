@@ -66,7 +66,7 @@ const FileSelectInput = ({
 
   const options = files.map((file) => ({
     value: file.ipfsUrl,
-    label: `${file.filename}${file.type}`,
+    label: `${file.filename}`,
   }));
 
   return (

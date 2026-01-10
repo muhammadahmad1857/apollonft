@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/config/supabase/client";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { FADE_DOWN_ANIMATION_VARIANTS } from "@/lib/utils";
@@ -9,6 +10,8 @@ import PageHeading from "@/components/marketplace/PageHeading";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -25,11 +28,12 @@ interface FileData {
   ipfsUrl: string;
   type: string;
   isMinted: boolean;
-  filename: string;
+  filename?: string | null;
 }
 
 export default function FilesPage() {
   const { address, isConnected } = useAccount();
+  const router = useRouter();
   const [files, setFiles] = useState<FileData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -113,13 +117,14 @@ export default function FilesPage() {
                   <TableHead>IPFS URL</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {files.map((file) => (
                   <TableRow key={file.id}>
                     <TableCell className="font-medium">
-                      {truncate(file.filename, 20)}
+                      {file.filename || truncate(file.id, 20)}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{file.type}</Badge>
@@ -146,6 +151,17 @@ export default function FilesPage() {
                       ) : (
                         <Badge variant="secondary">Draft</Badge>
                       )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/files/${file.id}`)}
+                        className="gap-2"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

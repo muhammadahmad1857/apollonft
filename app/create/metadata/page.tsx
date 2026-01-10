@@ -104,6 +104,12 @@ export default function MetadataPage() {
       if (error) throw error;
 
       toast.success("Metadata uploaded and saved to database!");
+      // Redirect to file detail page
+      if (data?.id) {
+        setTimeout(() => {
+          router.push(`/files/${data.id}`);
+        }, 1000);
+      }
     } catch (error) {
       console.log("Save error:", error);
       toast.error(

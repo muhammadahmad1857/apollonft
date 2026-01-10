@@ -35,7 +35,7 @@ export default function UploadPage() {
     setIsSaving(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("files")
         .insert({
           wallet_id: address,
@@ -52,6 +52,12 @@ export default function UploadPage() {
       }
 
       toast.success("File uploaded and saved to database!");
+      // Redirect to file detail page
+      if (data?.id) {
+        setTimeout(() => {
+          router.push(`/files/${data.id}`);
+        }, 1000);
+      }
     } catch (error) {
       console.error("Failed to save file", error);
       toast.error("Failed to save file. Please try again.");
