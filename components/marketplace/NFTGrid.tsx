@@ -85,8 +85,10 @@ export default function PublicMintsGrid() {
               return {
                 tokenId,
                 title: data.title || `Token #${tokenId}`,
-                cover: (data.image || data.cover || "")
-                  .replace("ipfs://", "https://gateway.pinata.cloud/ipfs/"),
+                cover: (data.image || data.cover || "").replace(
+                  "ipfs://",
+                  "https://gateway.pinata.cloud/ipfs/"
+                ),
                 media: data.animation_url || data.media,
                 description: data.description || "",
                 name: data.name || "Unknown Artist",
@@ -132,7 +134,7 @@ export default function PublicMintsGrid() {
       logs.forEach(async (log) => {
         const tokenId = Number(log.args.tokenId);
         const txHash = log.transactionHash!;
-        if(!publicClient) return
+        if (!publicClient) return;
         try {
           const uri = (await publicClient.readContract({
             address: CONTRACT_ADDRESS,
@@ -151,11 +153,16 @@ export default function PublicMintsGrid() {
           const newMint: MintWithMetadata = {
             tokenId,
             title: data.title || `Token #${tokenId}`,
-            cover: (data.image || data.cover || "")
-              .replace("ipfs://", "https://gateway.pinata.cloud/ipfs/"),
-            media: data.animation_url || data.media,
+            cover: (data.image || data.cover || "").replace(
+              "ipfs://",
+              "https://gateway.pinata.cloud/ipfs/"
+            ),
+            media: data.media.replace(
+              "ipfs://",
+              "https://gateway.pinata.cloud/ipfs/"
+            ),
             description: data.description || "",
-            name: data.name  || "Unknown Artist",
+            name: data.name || "Unknown Artist",
             minted: true,
             txHash,
           };
@@ -193,7 +200,11 @@ export default function PublicMintsGrid() {
     return (
       <div className="text-center py-16 text-red-500">
         {error}
-        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={() => window.location.reload()}
+        >
           Try Again
         </Button>
       </div>
