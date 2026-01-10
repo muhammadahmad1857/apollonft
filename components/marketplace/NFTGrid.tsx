@@ -24,7 +24,6 @@ const PAGE_SIZE = 12; // just for initial skeleton count
 interface MintWithMetadata extends NFTCardProps {
   tokenId: number;
   txHash?: string;
-  error?: string;
 }
 
 export default function PublicMintsGrid() {
@@ -51,7 +50,7 @@ export default function PublicMintsGrid() {
           args: { from: zeroAddress },
         });
 
-        // Sort newest first
+        // Sort newest first (descending block number)
         const sortedLogs = [...logs].sort((a, b) =>
           Number(b.blockNumber - a.blockNumber)
         );
@@ -61,8 +60,8 @@ export default function PublicMintsGrid() {
           txHash: log.transactionHash!,
         }));
 
-        // 2. Fetch metadata for all found mints
-        const mintsWithMeta = await Promise.all(
+        // 2. Fetch metadata → only keep successful ones
+        const successfulMints = await Promise.all(
           mintEvents.map(async ({ tokenId, txHash }) => {
             try {
               const uri = (await publicClient.readContract({
@@ -72,17 +71,20 @@ export default function PublicMintsGrid() {
                 args: [BigInt(tokenId)],
               })) as string;
 
-              // Handle IPFS
+              // Handle IPFS → Pinata gateway
               const httpUri = uri.startsWith("ipfs://")
                 ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
                 : uri;
 
               const res = await fetch(httpUri);
-              console.log(res)
-              // if (!res.ok) throw new Error("Metadata fetch failed");
+              if (!res.ok) {
+                console.warn(`Metadata fetch failed for token #${tokenId} - HTTP ${res.status}`);
+                return null; // ← skip this mint
+              }
 
               const data = await res.json();
-              console.log("Ran till here for token ", tokenId);
+              console.log(`Metadata loaded successfully for token #${tokenId} with data `,data);
+
               return {
                 tokenId,
                 title: data.title || `Token #${tokenId}`,
@@ -93,30 +95,23 @@ export default function PublicMintsGrid() {
                 media: data.media?.replace(
                   "ipfs://",
                   "https://gateway.pinata.cloud/ipfs/"
-                ),
+                ) || "",
                 description: data.description || "",
                 name: data.name || "Unknown Artist",
                 minted: true,
                 txHash,
               } as MintWithMetadata;
             } catch (err) {
-              console.log(`Failed for token #${tokenId}:`, err);
-              return {
-                tokenId,
-                title: `Token #${tokenId}`,
-                cover: "",
-                media: "",
-                description: "",
-                name: "Unknown",
-                minted: true,
-                error: "Metadata unavailable",
-                txHash,
-              };
+              console.warn(`Failed to process token #${tokenId}:`, err);
+              return null; // ← skip on any error
             }
           })
         );
 
-        setMints(mintsWithMeta);
+        // Filter out null/failed entries
+        const validMints = successfulMints.filter((mint): mint is MintWithMetadata => mint !== null);
+
+        setMints(validMints);
       } catch (err: any) {
         console.error("Failed to load public mints:", err);
         setError("Failed to load recent mints");
@@ -128,69 +123,8 @@ export default function PublicMintsGrid() {
     fetchPublicMints();
   }, [publicClient]);
 
-  // 3. Listen for new public mints in real-time
-  // useWatchContractEvent({
-  //   address: CONTRACT_ADDRESS,
-  //   abi: TRANSFER_ABI,
-  //   eventName: "Transfer",
-  //   args: { from: zeroAddress },
-  //   onLogs(logs) {
-  //     logs.forEach(async (log) => {
-  //       const tokenId = Number(log.args.tokenId);
-  //       const txHash = log.transactionHash!;
-  //       if (!publicClient) return;
-  //       try {
-  //         const uri = (await publicClient.readContract({
-  //           address: CONTRACT_ADDRESS,
-  //           abi: ERC721_ABI,
-  //           functionName: "tokenURI",
-  //           args: [log.args.tokenId!],
-  //         })) as string;
-
-  //         const httpUri = uri.startsWith("ipfs://")
-  //           ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
-  //           : uri;
-
-  //         const res = await fetch(httpUri);
-  //         const data = await res.json();
-
-  //         const newMint: MintWithMetadata = {
-  //           tokenId,
-  //           title: data.title || `Token #${tokenId}`,
-  //           cover: (data.image || data.cover || "").replace(
-  //             "ipfs://",
-  //             "https://gateway.pinata.cloud/ipfs/"
-  //           ),
-  //           media: data.media.replace(
-  //             "ipfs://",
-  //             "https://gateway.pinata.cloud/ipfs/"
-  //           ),
-  //           description: data.description || "",
-  //           name: data.name || "Unknown Artist",
-  //           minted: true,
-  //           txHash,
-  //         };
-
-  //         setMints((prev) => [newMint, ...prev]); // newest first
-  //       } catch (err) {
-  //         console.log(`New mint metadata failed #${tokenId}:`, err);
-  //         setMints((prev) => [
-  //           {
-  //             tokenId,
-  //             title: `Token #${tokenId} (loading metadata...)`,
-  //             cover: "",
-  //             media: "",
-  //             description: "",
-  //             name: "",
-  //             minted: true,
-  //             txHash,
-  //           },
-  //           ...prev,
-  //         ]);
-  //       }
-  //     });
-  //   },
-  // });
+  // Real-time new mints (commented out as before - you can uncomment when ready)
+  // useWatchContractEvent({...});
 
   if (loading) {
     return (
@@ -218,8 +152,8 @@ export default function PublicMintsGrid() {
   if (mints.length === 0) {
     return (
       <div className="text-center py-16">
-        <h2 className="text-xl font-medium">No public mints yet</h2>
-        <p className="text-zinc-500 mt-2">Be the first to mint!</p>
+        <h2 className="text-xl font-medium">No public mints with valid metadata yet</h2>
+        <p className="text-zinc-500 mt-2">New mints will appear here once metadata is available.</p>
       </div>
     );
   }
