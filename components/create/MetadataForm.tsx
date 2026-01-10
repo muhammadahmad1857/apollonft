@@ -286,7 +286,13 @@ export function MetadataForm({
               setMusicTrackUrl(url);
               console.log("set", musicTrackUrl);
 
-              handleFieldChange();
+              onMetadataChange({
+                name,
+                title,
+                description,
+                coverImageUrl,
+                musicTrackUrl: url,           // ← use url here, not musicTrackUrl
+              });
             }}
             className="w-full"
           />
