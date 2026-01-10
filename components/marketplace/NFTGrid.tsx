@@ -81,7 +81,7 @@ export default function PublicMintsGrid() {
               if (!res.ok) throw new Error("Metadata fetch failed");
 
               const data = await res.json();
-
+              console.log("Ran till here for token ", tokenId);
               return {
                 tokenId,
                 title: data.title || `Token #${tokenId}`,
@@ -89,7 +89,7 @@ export default function PublicMintsGrid() {
                   "ipfs://",
                   "https://gateway.pinata.cloud/ipfs/"
                 ),
-                media: data.media.replace(
+                media: data.media?.replace(
                   "ipfs://",
                   "https://gateway.pinata.cloud/ipfs/"
                 ),
@@ -128,68 +128,68 @@ export default function PublicMintsGrid() {
   }, [publicClient]);
 
   // 3. Listen for new public mints in real-time
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESS,
-    abi: TRANSFER_ABI,
-    eventName: "Transfer",
-    args: { from: zeroAddress },
-    onLogs(logs) {
-      logs.forEach(async (log) => {
-        const tokenId = Number(log.args.tokenId);
-        const txHash = log.transactionHash!;
-        if (!publicClient) return;
-        try {
-          const uri = (await publicClient.readContract({
-            address: CONTRACT_ADDRESS,
-            abi: ERC721_ABI,
-            functionName: "tokenURI",
-            args: [log.args.tokenId!],
-          })) as string;
+  // useWatchContractEvent({
+  //   address: CONTRACT_ADDRESS,
+  //   abi: TRANSFER_ABI,
+  //   eventName: "Transfer",
+  //   args: { from: zeroAddress },
+  //   onLogs(logs) {
+  //     logs.forEach(async (log) => {
+  //       const tokenId = Number(log.args.tokenId);
+  //       const txHash = log.transactionHash!;
+  //       if (!publicClient) return;
+  //       try {
+  //         const uri = (await publicClient.readContract({
+  //           address: CONTRACT_ADDRESS,
+  //           abi: ERC721_ABI,
+  //           functionName: "tokenURI",
+  //           args: [log.args.tokenId!],
+  //         })) as string;
 
-          const httpUri = uri.startsWith("ipfs://")
-            ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
-            : uri;
+  //         const httpUri = uri.startsWith("ipfs://")
+  //           ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
+  //           : uri;
 
-          const res = await fetch(httpUri);
-          const data = await res.json();
+  //         const res = await fetch(httpUri);
+  //         const data = await res.json();
 
-          const newMint: MintWithMetadata = {
-            tokenId,
-            title: data.title || `Token #${tokenId}`,
-            cover: (data.image || data.cover || "").replace(
-              "ipfs://",
-              "https://gateway.pinata.cloud/ipfs/"
-            ),
-            media: data.media.replace(
-              "ipfs://",
-              "https://gateway.pinata.cloud/ipfs/"
-            ),
-            description: data.description || "",
-            name: data.name || "Unknown Artist",
-            minted: true,
-            txHash,
-          };
+  //         const newMint: MintWithMetadata = {
+  //           tokenId,
+  //           title: data.title || `Token #${tokenId}`,
+  //           cover: (data.image || data.cover || "").replace(
+  //             "ipfs://",
+  //             "https://gateway.pinata.cloud/ipfs/"
+  //           ),
+  //           media: data.media.replace(
+  //             "ipfs://",
+  //             "https://gateway.pinata.cloud/ipfs/"
+  //           ),
+  //           description: data.description || "",
+  //           name: data.name || "Unknown Artist",
+  //           minted: true,
+  //           txHash,
+  //         };
 
-          setMints((prev) => [newMint, ...prev]); // newest first
-        } catch (err) {
-          console.log(`New mint metadata failed #${tokenId}:`, err);
-          setMints((prev) => [
-            {
-              tokenId,
-              title: `Token #${tokenId} (loading metadata...)`,
-              cover: "",
-              media: "",
-              description: "",
-              name: "",
-              minted: true,
-              txHash,
-            },
-            ...prev,
-          ]);
-        }
-      });
-    },
-  });
+  //         setMints((prev) => [newMint, ...prev]); // newest first
+  //       } catch (err) {
+  //         console.log(`New mint metadata failed #${tokenId}:`, err);
+  //         setMints((prev) => [
+  //           {
+  //             tokenId,
+  //             title: `Token #${tokenId} (loading metadata...)`,
+  //             cover: "",
+  //             media: "",
+  //             description: "",
+  //             name: "",
+  //             minted: true,
+  //             txHash,
+  //           },
+  //           ...prev,
+  //         ]);
+  //       }
+  //     });
+  //   },
+  // });
 
   if (loading) {
     return (
