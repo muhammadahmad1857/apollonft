@@ -344,15 +344,14 @@
 // };
 
 // export default NFTGrid;
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { usePublicClient, useWatchContractEvent } from "wagmi";
-import { zeroAddress, parseAbi, type Log } from "viem";
-import NFTCard, { NFTCardProps } from "./NFTCard"; // ← your reusable card component
-import SkeletonCards from "./SkeletonCards"; // ← your skeleton loader
+import { zeroAddress, parseAbi } from "viem";
+import NFTCard, { NFTCardProps } from "./NFTCard";
+import SkeletonCards from "./SkeletonCards";
 import { Button } from "../ui/button";
 
 const TRANSFER_ABI = parseAbi([
@@ -360,207 +359,177 @@ const TRANSFER_ABI = parseAbi([
 ]);
 
 const ERC721_ABI = parseAbi([
-  "function totalSupply() view returns (uint256)",
   "function tokenURI(uint256 tokenId) view returns (string)",
 ]);
 
-// CHANGE THIS if needed (but keep using env var)
 const CONTRACT_ADDRESS = process.env
   .NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
 
-const PAGE_SIZE = 12; // Adjust as needed
+const PAGE_SIZE = 12; // just for initial skeleton count
 
 interface MintWithMetadata extends NFTCardProps {
   tokenId: number;
-  txHash?: string; // optional: show in card if you want
-  mintedAt?: string; // optional: can add block timestamp later
+  txHash?: string;
   error?: string;
 }
 
 export default function PublicMintsGrid() {
   const publicClient = usePublicClient();
 
-  const [rawMints, setRawMints] = useState<
-    { tokenId: bigint; txHash: `0x${string}`; blockNumber: bigint }[]
-  >([]);
   const [mints, setMints] = useState<MintWithMetadata[]>([]);
-  const [totalSupply, setTotalSupply] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
 
-  const hasMore = useMemo(
-    () => totalSupply > 0 && mints.length < totalSupply,
-    [mints.length, totalSupply]
-  );
-
-  // 1. Get totalSupply once
+  // 1. Load all historical public mints once
   useEffect(() => {
     if (!publicClient) return;
 
-    const fetchTotal = async () => {
+    const fetchPublicMints = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const supply = await publicClient.readContract({
-          address: CONTRACT_ADDRESS,
-          abi: ERC721_ABI,
-          functionName: "totalSupply",
-        });
-
-        const count = Number(supply);
-        setTotalSupply(count);
-
-        if (count === 0) setLoading(false);
-      } catch (err: any) {
-        console.error("Failed to read totalSupply:", err);
-        setError("Failed to load collection info");
-        setLoading(false);
-      }
-    };
-
-    fetchTotal();
-  }, [publicClient]);
-
-  // 2. Fetch historical public mints (Transfer from 0x0)
-  useEffect(() => {
-    if (!publicClient || totalSupply === 0) return;
-
-    const fetchHistoricalMints = async () => {
-      try {
         const logs = await publicClient.getLogs({
           address: CONTRACT_ADDRESS,
           event: TRANSFER_ABI[0],
-          fromBlock: "earliest", // optimize later with deployment block
+          fromBlock: "earliest",
           toBlock: "latest",
           args: { from: zeroAddress },
         });
 
-        // Sort descending (newest first)
+        // Sort newest first
         const sortedLogs = [...logs].sort((a, b) =>
-          b.blockNumber > a.blockNumber ? 1 : -1
+          Number(b.blockNumber - a.blockNumber)
         );
 
-        const events = sortedLogs.map((log) => ({
-          tokenId: log.args.tokenId!,
+        const mintEvents = sortedLogs.map((log) => ({
+          tokenId: Number(log.args.tokenId),
           txHash: log.transactionHash!,
-          blockNumber: log.blockNumber!,
         }));
 
-        setRawMints(events);
+        // 2. Fetch metadata for all found mints
+        const mintsWithMeta = await Promise.all(
+          mintEvents.map(async ({ tokenId, txHash }) => {
+            try {
+              const uri = (await publicClient.readContract({
+                address: CONTRACT_ADDRESS,
+                abi: ERC721_ABI,
+                functionName: "tokenURI",
+                args: [BigInt(tokenId)],
+              })) as string;
+
+              // Handle IPFS
+              const httpUri = uri.startsWith("ipfs://")
+                ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
+                : uri;
+
+              const res = await fetch(httpUri);
+              if (!res.ok) throw new Error("Metadata fetch failed");
+
+              const data = await res.json();
+
+              return {
+                tokenId,
+                owner:data.name,
+                title: data.name || data.title || `Token #${tokenId}`,
+                cover: (data.image || data.cover || "")
+                  .replace("ipfs://", "https://gateway.pinata.cloud/ipfs/"),
+                media: data.animation_url || data.media,
+                description: data.description || "",
+                artist: data.artist || "Unknown Artist",
+                minted: true,
+                txHash,
+              } as MintWithMetadata;
+            } catch (err) {
+              console.warn(`Failed for token #${tokenId}:`, err);
+              return {
+                tokenId,
+                title: `Token #${tokenId}`,
+                cover: "",
+                media: "",
+                description: "",
+                artist: "Unknown",
+                minted: true,
+                error: "Metadata unavailable",
+                txHash,
+                owner:"unknown"
+              };
+            }
+          })
+        );
+
+        setMints(mintsWithMeta);
       } catch (err: any) {
-        console.error("Failed to fetch mint events:", err);
-        setError("Could not load mint history");
+        console.error("Failed to load public mints:", err);
+        setError("Failed to load recent mints");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchHistoricalMints();
-  }, [publicClient, totalSupply]);
+    fetchPublicMints();
+  }, [publicClient]);
 
-  // 3. Real-time new public mints
+  // 3. Listen for new public mints in real-time
   useWatchContractEvent({
     address: CONTRACT_ADDRESS,
     abi: TRANSFER_ABI,
     eventName: "Transfer",
     args: { from: zeroAddress },
     onLogs(logs) {
-      const newEvents = logs.map((log) => ({
-        tokenId: log.args.tokenId!,
-        txHash: log.transactionHash!,
-        blockNumber: log.blockNumber!,
-      }));
+      logs.forEach(async (log) => {
+        const tokenId = Number(log.args.tokenId);
+        const txHash = log.transactionHash!;
+        if(!publicClient) return
+        try {
+          const uri = (await publicClient.readContract({
+            address: CONTRACT_ADDRESS,
+            abi: ERC721_ABI,
+            functionName: "tokenURI",
+            args: [log.args.tokenId!],
+          })) as string;
 
-      setRawMints((prev) => [...newEvents, ...prev]); // newest on top
+          const httpUri = uri.startsWith("ipfs://")
+            ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
+            : uri;
+
+          const res = await fetch(httpUri);
+          const data = await res.json();
+
+          const newMint: MintWithMetadata = {
+            tokenId,
+            owner:data.name,
+            title: data.name || data.title || `Token #${tokenId}`,
+            cover: (data.image || data.cover || "")
+              .replace("ipfs://", "https://gateway.pinata.cloud/ipfs/"),
+            media: data.animation_url || data.media,
+            description: data.description || "",
+            artist: data.artist || "Unknown Artist",
+            minted: true,
+            txHash,
+          };
+
+          setMints((prev) => [newMint, ...prev]); // newest first
+        } catch (err) {
+          console.warn(`New mint metadata failed #${tokenId}:`, err);
+          setMints((prev) => [
+            {
+              tokenId,
+              owner:"",
+              title: `Token #${tokenId} (loading metadata...)`,
+              cover: "",
+              media: "",
+              description: "",
+              artist: "",
+              minted: true,
+              txHash,
+            },
+            ...prev,
+          ]);
+        }
+      });
     },
   });
-
-  // 4. Paginated metadata loading (load PAGE_SIZE at a time)
-  const loadMetadataPage = useCallback(async () => {
-    if (!publicClient || rawMints.length === 0) return;
-
-    const start = currentPage * PAGE_SIZE;
-    const end = Math.min(start + PAGE_SIZE, rawMints.length);
-    if (start >= end) return;
-
-    setLoadingMore(true);
-
-    const pageEvents = rawMints.slice(start, end);
-
-    const newMints: MintWithMetadata[] = [];
-
-    for (const event of pageEvents) {
-      const tokenIdStr =Number(event.tokenId)
-
-      try {
-        const uri = (await publicClient.readContract({
-          address: CONTRACT_ADDRESS,
-          abi: ERC721_ABI,
-          functionName: "tokenURI",
-          args: [event.tokenId],
-        })) as string;
-
-        // Normalize IPFS → public gateway
-        const httpUri = uri.startsWith("ipfs://")
-          ? uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
-          : uri;
-
-        const res = await fetch(httpUri, { cache: "no-store" });
-        if (!res.ok) throw new Error(`Metadata ${res.status}`);
-
-        const data = await res.json();
-
-        newMints.push({
-          tokenId: tokenIdStr,
-          title: data.name || data.title || `Token #${tokenIdStr}`,
-          cover:
-            data.image || data.cover
-              ? (data.image || data.cover).replace(
-                  "ipfs://",
-                  "https://gateway.pinata.cloud/ipfs/"
-                )
-              : "",
-          media: data.animation_url || data.media,
-          description: data.description || "",
-          artist: data.artist || "Unknown",
-          minted: true,
-          txHash: event.txHash,
-          owner:data.name
-          // mintedAt: can add timestamp later via getBlock
-        });
-      } catch (err) {
-        console.warn(`Metadata fail #${tokenIdStr}:`, err);
-        newMints.push({
-          tokenId: tokenIdStr,
-          title: `Token #${tokenIdStr} (metadata unavailable)`,
-          cover: "",
-          media: "",
-          description: "",
-          artist: "",
-          minted: true,
-          error: "Metadata unavailable",
-          txHash: event.txHash,
-          owner:"unknown"
-        });
-      }
-    }
-
-    setMints((prev) => [...prev, ...newMints]);
-    setCurrentPage((p) => p + 1);
-    setLoadingMore(false);
-  }, [publicClient, rawMints, currentPage]);
-
-  // Auto-load first page of metadata once raw mints are ready
-  useEffect(() => {
-    if (rawMints.length > 0 && mints.length === 0 && !loading) {
-      loadMetadataPage();
-    }
-  }, [rawMints, mints.length, loading, loadMetadataPage]);
-
-  const handleLoadMore = () => {
-    loadMetadataPage();
-  };
 
   if (loading) {
     return (
@@ -571,15 +540,21 @@ export default function PublicMintsGrid() {
   }
 
   if (error) {
-    return <div className="text-center py-16 text-red-500">{error}</div>;
+    return (
+      <div className="text-center py-16 text-red-500">
+        {error}
+        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
+      </div>
+    );
   }
 
-  if (totalSupply === 0 || mints.length === 0) {
+  if (mints.length === 0) {
     return (
       <div className="text-center py-16">
-        <h2 className="text-xl font-medium">No public mints yet.</h2>
+        <h2 className="text-xl font-medium">No public mints yet</h2>
         <p className="text-zinc-500 mt-2">Be the first to mint!</p>
-        {/* Optional: link to mint page */}
       </div>
     );
   }
@@ -587,7 +562,7 @@ export default function PublicMintsGrid() {
   return (
     <div className="max-w-7xl mx-auto px-6">
       <h2 className="text-3xl font-bold mb-8 text-center">
-        Public Mints ({mints.length} shown)
+        Recent Public Mints ({mints.length})
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -595,19 +570,6 @@ export default function PublicMintsGrid() {
           <NFTCard key={nft.tokenId} {...nft} />
         ))}
       </div>
-
-      {hasMore && (
-        <div className="text-center mt-12">
-          <Button
-            onClick={handleLoadMore}
-            disabled={loadingMore}
-            variant="outline"
-            size="lg"
-          >
-            {loadingMore ? "Loading more..." : "Load More Mints"}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
