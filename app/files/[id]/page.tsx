@@ -47,7 +47,9 @@ export default function FileDetailPage() {
   const { address, isConnected } = useAccount();
   const fileId = params.id as string;
 
-  const [mediaType, setMediaType] = useState<"audio" | "video" | "image" | "unknown">("unknown");
+  const [mediaType, setMediaType] = useState<
+    "audio" | "video" | "image" | "unknown"
+  >("unknown");
   const [file, setFile] = useState<FileData | null>(null);
   const [metadata, setMetadata] = useState<MetadataContent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,7 +99,10 @@ export default function FileDetailPage() {
         // Try to load metadata if it's a JSON file
         if (fileData.type === ".json") {
           try {
-            const httpUrl = fileData.ipfsUrl.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
+            const httpUrl = fileData.ipfsUrl.replace(
+              "ipfs://",
+              "https://gateway.pinata.cloud/ipfs/"
+            );
             const metadataRes = await fetch(httpUrl);
             if (metadataRes.ok) {
               const metadataData = await metadataRes.json();
@@ -146,7 +151,8 @@ export default function FileDetailPage() {
       const response = await fetch(url, { method: "HEAD" });
       if (!response.ok) throw new Error("HEAD request failed");
 
-      const contentType = response.headers.get("content-type")?.toLowerCase() || "";
+      const contentType =
+        response.headers.get("content-type")?.toLowerCase() || "";
 
       if (contentType.startsWith("audio/")) {
         setMediaType("audio");
@@ -197,7 +203,9 @@ export default function FileDetailPage() {
   };
 
   const isPotentialMediaFile = (type: string) =>
-    [".mp3", ".wav", ".ogg", ".m4a", ".aac", ".mp4", ".webm", ".mov"].includes(type);
+    [".mp3", ".wav", ".ogg", ".m4a", ".aac", ".mp4", ".webm", ".mov"].includes(
+      type
+    );
 
   const isImageFile = (type: string) =>
     [".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(type);
@@ -235,16 +243,24 @@ export default function FileDetailPage() {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
         <div className="mx-auto max-w-7xl px-6 py-12">
-          <Button variant="ghost" onClick={() => router.back()} className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="mb-6"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
           <div className="flex flex-col items-center justify-center h-[70vh] space-y-4">
             <XCircle className="h-16 w-16 text-red-500" />
             <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-              {unauthorized ? "You don't have permission to view this file" : "File not found"}
+              {unauthorized
+                ? "You don't have permission to view this file"
+                : "File not found"}
             </p>
-            <Button onClick={() => router.push("/files")}>Go to My Files</Button>
+            <Button onClick={() => router.push("/files")}>
+              Go to My Files
+            </Button>
           </div>
         </div>
       </div>
@@ -294,11 +310,19 @@ export default function FileDetailPage() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Button variant="outline" onClick={() => window.open(gatewayUrl, "_blank")} className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(gatewayUrl, "_blank")}
+                  className="gap-2"
+                >
                   <ExternalLink className="h-4 w-4" />
                   Open IPFS
                 </Button>
-                <Button variant="outline" onClick={() => window.open(gatewayUrl, "_blank")} className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(gatewayUrl, "_blank")}
+                  className="gap-2"
+                >
                   <Download className="h-4 w-4" />
                   Download
                 </Button>
@@ -314,29 +338,45 @@ export default function FileDetailPage() {
               transition={{ duration: 0.3, delay: 0.1 }}
               className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 md:p-8"
             >
-              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6">Metadata Content</h2>
+              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6">
+                Metadata Content
+              </h2>
               <div className="space-y-6">
                 {metadata.name && (
                   <div>
-                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Name</h3>
-                    <p className="text-lg text-zinc-900 dark:text-zinc-100">{metadata.name}</p>
+                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                      Name
+                    </h3>
+                    <p className="text-lg text-zinc-900 dark:text-zinc-100">
+                      {metadata.name}
+                    </p>
                   </div>
                 )}
                 {metadata.title && (
                   <div>
-                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Title</h3>
-                    <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{metadata.title}</p>
+                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                      Title
+                    </h3>
+                    <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                      {metadata.title}
+                    </p>
                   </div>
                 )}
                 {metadata.description && (
                   <div>
-                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">Description</h3>
-                    <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">{metadata.description}</p>
+                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                      Description
+                    </h3>
+                    <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                      {metadata.description}
+                    </p>
                   </div>
                 )}
                 {metadata.cover && (
                   <div>
-                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-4">Cover Image</h3>
+                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-4">
+                      Cover Image
+                    </h3>
                     <div className="relative w-full max-w-md rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
                       <img
                         src={getIpfsGatewayUrl(metadata.cover)}
@@ -356,10 +396,11 @@ export default function FileDetailPage() {
                 )}
                 {metadata.media && (
                   <div>
-                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-4">Media File</h3>
-                    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-4">
-                      {metadata.media.toLowerCase().includes(".mp4") ||
-                      metadata.media.toLowerCase().includes(".webm") ? (
+                    <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-4">
+                      Media File
+                    </h3>
+                    {/* <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-4">
+                      {mediaType === "video" ? (
                         <video controls className="w-full rounded-lg" src={getIpfsGatewayUrl(metadata.media)}>
                           Your browser does not support the video tag.
                         </video>
@@ -368,7 +409,8 @@ export default function FileDetailPage() {
                           Your browser does not support the audio tag.
                         </audio>
                       )}
-                    </div>
+                    </div> */}
+                    Media Type: {mediaType}
                     <a
                       href={getIpfsGatewayUrl(metadata.media)}
                       target="_blank"
@@ -390,7 +432,9 @@ export default function FileDetailPage() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 md:p-8"
           >
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6">File Preview</h2>
+            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6">
+              File Preview
+            </h2>
 
             <div className="space-y-4">
               {mediaType === "image" && (
@@ -414,19 +458,29 @@ export default function FileDetailPage() {
 
               {mediaType === "video" && (
                 <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-4">
-                  <video controls className="w-full rounded-lg max-h-[600px]" src={gatewayUrl}>
+                  <video
+                    controls
+                    className="w-full rounded-lg max-h-[600px]"
+                    src={gatewayUrl}
+                  >
                     Your browser does not support the video tag.
                   </video>
                 </div>
               )}
 
-              {(mediaType === "unknown" || (!isPotentialMediaFile(file.type) && !isImageFile(file.type))) && (
+              {(mediaType === "unknown" ||
+                (!isPotentialMediaFile(file.type) &&
+                  !isImageFile(file.type))) && (
                 <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-6 text-center">
                   <FileText className="h-12 w-12 mx-auto text-zinc-400 mb-4" />
                   <p className="text-zinc-600 dark:text-zinc-400">
                     Preview not available for this file type ({file.type})
                   </p>
-                  <Button variant="outline" className="mt-4 gap-2" onClick={() => window.open(gatewayUrl, "_blank")}>
+                  <Button
+                    variant="outline"
+                    className="mt-4 gap-2"
+                    onClick={() => window.open(gatewayUrl, "_blank")}
+                  >
                     <ExternalLink className="h-4 w-4" />
                     Open in New Tab
                   </Button>
@@ -442,7 +496,9 @@ export default function FileDetailPage() {
             transition={{ duration: 0.3, delay: 0.3 }}
             className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 md:p-8"
           >
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6">File Information</h2>
+            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6">
+              File Information
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
@@ -459,7 +515,9 @@ export default function FileDetailPage() {
                   <Wallet className="h-4 w-4" />
                   <span>Wallet Address</span>
                 </div>
-                <p className="text-zinc-900 dark:text-zinc-100 font-mono text-sm break-all">{file.wallet_id}</p>
+                <p className="text-zinc-900 dark:text-zinc-100 font-mono text-sm break-all">
+                  {file.wallet_id}
+                </p>
               </div>
 
               <div className="space-y-1 md:col-span-2">
@@ -484,7 +542,9 @@ export default function FileDetailPage() {
                   <FileText className="h-4 w-4" />
                   <span>File ID</span>
                 </div>
-                <p className="text-zinc-900 dark:text-zinc-100 font-mono text-sm">{file.id}</p>
+                <p className="text-zinc-900 dark:text-zinc-100 font-mono text-sm">
+                  {file.id}
+                </p>
               </div>
             </div>
           </motion.div>
