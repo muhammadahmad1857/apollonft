@@ -78,7 +78,8 @@ export default function PublicMintsGrid() {
                 : uri;
 
               const res = await fetch(httpUri);
-              if (!res.ok) throw new Error("Metadata fetch failed");
+              console.log(res)
+              // if (!res.ok) throw new Error("Metadata fetch failed");
 
               const data = await res.json();
               console.log("Ran till here for token ", tokenId);
