@@ -7,10 +7,9 @@ import { Music } from "lucide-react";
 export interface NFTCardProps {
   title: string;
   description: string;
-  artist: string;
+  name: string;
   cover?: string;
   media: string;
-  owner: string;
   minted: boolean;
   tokenId: number;
 }
@@ -19,16 +18,15 @@ const NFTCard = ({
   title,
   cover,
   media,
-  owner,
   tokenId,
-  artist,
+  name,
   description,
 }: NFTCardProps) => {
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
-
+  console.log("Media for token id:",tokenId,media)
   return (
     <motion.div
       className="group relative rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm hover:scale-105 hover:ring-1 hover:ring-cyan-500/20 transition-transform duration-300 ease-out bg-white dark:bg-zinc-900"
@@ -65,7 +63,7 @@ const NFTCard = ({
           {description}
         </p>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          By {artist} #{tokenId}
+          By {name} #{tokenId}
         </p>
         {/* <div className="mt-4">
           <audio controls controlsList="nodownload" className="w-full h-10">
