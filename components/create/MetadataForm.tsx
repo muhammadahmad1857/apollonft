@@ -58,6 +58,7 @@ export function MetadataForm({
     });
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const uploadCoverImage = async (file: File) => {
     try {
 
@@ -92,8 +93,8 @@ export function MetadataForm({
       const ipfsHash = json.IpfsHash;
       const ipfsUrl = `ipfs://${ipfsHash}`;
 
-      setCoverImageUrl(ipfsUrl);
       handleFieldChange();
+      setCoverImageUrl(ipfsUrl);
       toast.success("Cover image uploaded!");
     } catch (error) {
       console.log("Cover upload error:", error);
