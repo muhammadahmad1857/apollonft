@@ -1,185 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { FileUpload } from "@/components/create/FileUpload";
-import { MetadataForm } from "@/components/create/MetadataForm";
-import { createClient } from "@/lib/config/supabase/client";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Upload, FileJson, ArrowRight } from "lucide-react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-// interface FileData {
-//   id?: string;
-//   wallet_id: string;
-//   ipfsUrl: string;
-//   type: ".mp3" | ".mp4" | ".wav";
-//   createdAt?: Date;
-//   isMinted: boolean;
-// }
-
 export default function CreatePage() {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("upload");
-  const [uploadedFile, setUploadedFile] = useState<{
-    ipfsUrl: string;
-    type: ".mp3" | ".mp4" | ".wav";
-    name: string;
-  } | null>(null);
-  const [metadata, setMetadata] = useState<{
-    name: string;
-    title: string;
-    description: string;
-    coverImageUrl?: string;
-    musicTrackUrl?: string;
-  }>({
-    name: "",
-    title: "",
-    description: "",
-    musicTrackUrl: "",
-  });
-  const [isSaving, setIsSaving] = useState(false);
-  const [draftId, setDraftId] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   if (!isConnected) {
-  //     toast.info("Please connect your wallet to continue");
-  //     router.push("/");
-  //   }
-  // }, [isConnected, router]);
-
-  const handleFileUpload = async (
-    ipfsUrl: string,
-    fileType: ".mp3" | ".mp4" | ".wav",
-    fileName: string
-  ) => {
-    setUploadedFile({ ipfsUrl, type: fileType, name: fileName });
-    if (!address) {
-      toast.error("Cannot save file, wallet not connected.");
-      return;
-    }
-
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("files")
-        .insert({
-          wallet_id: address,
-          ipfsUrl: ipfsUrl,
-          type: fileType,
-          isMinted: false,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success("File uploaded and draft created!");
-      // Enable metadata tab after upload
-      if (activeTab === "upload") {
-        setTimeout(() => setActiveTab("metadata"), 500);
-      }
-    } catch (error) {
-      console.error("Failed to create draft", error);
-      toast.error("Failed to create draft. Please try again.");
-      setUploadedFile(null); // Reset on failure
-    }
+  const handleNavigate = (path: string) => {
+    router.push(path);
   };
-
-  const handleMetadataChange = (newMetadata: typeof metadata) => {
-    setMetadata(newMetadata);
-  };
-
-  const saveDraft = async () => {
-    if (!metadata.name || !metadata.title) {
-      toast.error("Please fill in name and title");
-      return;
-    }
-
-    setIsSaving(true);
-
-    try {
-      const supabase = createClient();
-
-      // Create metadata JSON
-      const metadataJSON = {
-        name: metadata.name,
-        title: metadata.title,
-        description: metadata.description,
-        cover: metadata.coverImageUrl || null,
-        media: metadata.musicTrackUrl || uploadedFile?.ipfsUrl,
-      };
-
-      // Upload metadata to Pinata
-      const JWT =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIwZjYzNTg1Yy0yMTI3LTRlMjctOTI3NC1kOTE5MDUxMDgxNmEiLCJlbWFpbCI6ImFobWVkamF3YWQxODU3QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI0MjNjM2Q2NzU1Mzk2NzBmYmI5NiIsInNjb3BlZEtleVNlY3JldCI6ImU4YmZiOTlkNTA4ZGUwNTQ0NjI0MjBhZDNmZjU1OGViMzZjNzJjNjFhNWMwODc1ZWFiMjQ2YWQxZWE4NGJiMGMiLCJleHAiOjE3OTk1MTk3OTR9.tkrNj23347LGFDzEKiv2J-i0kntPOiDdPtyWns8Ge5Q";
-
-      const metadataUploadRes = await fetch(
-        "https://api.pinata.cloud/pinning/pinJSONToIPFS",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${JWT}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            pinataMetadata: {
-              name: `${metadata.name}-metadata.json`,
-            },
-            pinataContent: metadataJSON,
-          }),
-        }
-      );
-
-      if (!metadataUploadRes.ok) {
-        throw new Error("Failed to upload metadata");
-      }
-
-      const metadataJson = await metadataUploadRes.json();
-      const metadataIpfsUrl = `ipfs://${metadataJson.IpfsHash}`;
-
-      // Update Supabase with metadata URL
-      const { error } = await supabase.from("files").insert({
-        type: ".json", // Update name from metadata
-        ipfsUrl: metadataIpfsUrl,
-        isMinted: false,
-        wallet_id: address,
-      });
-
-      if (error) throw error;
-      toast.success("Draft updated!");
-    } catch (error) {
-      console.log("Save error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to save draft"
-      );
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleReset = () => {
-    setUploadedFile(null);
-    setMetadata({ name: "", title: "", description: "", musicTrackUrl: "" });
-    setDraftId(null);
-    setActiveTab("upload");
-    toast.info("Form reset");
-  };
-
-  const canSaveDraft =
-    metadata.name.trim() !== "" && metadata.title.trim() !== "";
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="mx-auto max-w-4xl px-6 py-12">
-        {/* Page Header */}
+      <div className="mx-auto max-w-6xl px-6 py-12">
         {isConnected ? (
           <>
             <motion.div
@@ -192,105 +29,80 @@ export default function CreatePage() {
                 Create New NFT
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400">
-                Upload your music and prepare metadata before minting
+                Choose an option to get started
               </p>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="mt-3 h-0.5 bg-linear-to-r from-cyan-500 to-blue-500"
+                className="mt-3 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500"
               />
             </motion.div>
 
-            {/* Tabs */}
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="mb-24"
-            >
-              <TabsList className="grid w-full grid-cols-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-transparent p-1">
-                <TabsTrigger
-                  value="upload"
-                  disabled={isSaving}
-                  className="rounded-full data-[state=active]:bg-cyan-500 data-[state=active]:text-white"
-                >
-                  Upload File
-                </TabsTrigger>
-                <TabsTrigger
-                  value="metadata"
-                  disabled={isSaving}
-                  className="rounded-full data-[state=active]:bg-cyan-500 data-[state=active]:text-white disabled:opacity-50"
-                >
-                  Metadata
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="upload" className="mt-8">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <FileUpload
-                    onUploadComplete={handleFileUpload}
-                    uploadedFile={uploadedFile}
-                  />
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="metadata" className="mt-8">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <MetadataForm
-                    onMetadataChange={handleMetadataChange}
-                    initialData={metadata}
-                  />
-                </motion.div>
-              </TabsContent>
-            </Tabs>
-
-            {/* Footer Actions */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="fixed bottom-0 left-0 right-0 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/80 backdrop-blur-sm z-40"
-            >
-              <div className="mx-auto max-w-4xl px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant="ghost"
-                    onClick={handleReset}
-                    className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    onClick={saveDraft}
-                    disabled={!canSaveDraft || isSaving}
-                    className="bg-cyan-500 text-white hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Draft"
-                    )}
-                  </Button>
+            {/* Grid Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+              {/* Upload File Option */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                onClick={() => handleNavigate("/create/upload")}
+                className="group relative cursor-pointer rounded-xl border-2 border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 p-8 hover:border-cyan-500 dark:hover:border-cyan-500 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20"
+              >
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cyan-500/10 group-hover:bg-cyan-500/20 transition-colors">
+                    <Upload className="h-8 w-8 text-cyan-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                      Upload File
+                    </h2>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Upload your music or video file to Pinata and save it to
+                      the database
+                    </p>
+                  </div>
+                  <div className="flex items-center text-cyan-500 font-medium mt-4 group-hover:translate-x-1 transition-transform">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+
+              {/* Create Metadata Option */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+                onClick={() => handleNavigate("/create/metadata")}
+                className="group relative cursor-pointer rounded-xl border-2 border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 p-8 hover:border-cyan-500 dark:hover:border-cyan-500 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20"
+              >
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cyan-500/10 group-hover:bg-cyan-500/20 transition-colors">
+                    <FileJson className="h-8 w-8 text-cyan-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                      Create Metadata
+                    </h2>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Create and upload metadata JSON file to Pinata and save it
+                      to the database
+                    </p>
+                  </div>
+                  <div className="flex items-center text-cyan-500 font-medium mt-4 group-hover:translate-x-1 transition-transform">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </>
         ) : (
-          <div className="flex items-center justify-center h-screen">
-            <div className="text-2xl font-bold">
+          <div className="flex flex-col items-center justify-center h-[70vh] space-y-4">
+            <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
               Please connect your wallet to continue
-            </div>
+            </p>
             <ConnectButton showBalance />
           </div>
         )}
