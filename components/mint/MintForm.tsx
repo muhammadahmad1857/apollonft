@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   useAccount,
   useWriteContract,
@@ -20,6 +20,7 @@ import FileSelectInput from "../ui/FileSelectInput";
 import { Image, Loader2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BaseError } from "wagmi";
+import { createClient } from "@/lib/config/supabase/client";
 
 interface MintFormProps {
   contractAddress: `0x${string}`;
@@ -87,6 +88,49 @@ export function MintForm({ contractAddress }: MintFormProps) {
     }
   }, [writeError]);
 
+  const updateMintStatus = useCallback(
+    async (fileIpfsUrl: string) => {
+      if (!address) return;
+
+      try {
+        const supabase = createClient();
+        // Find the file by matching ipfsUrl with the tokenURI
+        const { data, error } = await supabase
+          .from("files")
+          .select("id")
+          .eq("ipfsUrl", fileIpfsUrl)
+          .eq("wallet_id", address)
+          .single();
+
+        if (error) {
+          console.error("Error finding file:", error);
+          return;
+        }
+
+        if (!data || !data.id) {
+          console.warn("File not found for IPFS URL:", fileIpfsUrl);
+          return;
+        }
+
+        // Update the isMinted status to true
+        const { error: updateError } = await supabase
+          .from("files")
+          .update({ isMinted: true })
+          .eq("id", data.id);
+
+        if (updateError) {
+          console.error("Error updating mint status:", updateError);
+          toast.error("Failed to update mint status in database");
+        } else {
+          console.log("Mint status updated successfully for file:", data.id);
+        }
+      } catch (error) {
+        console.error("Error in updateMintStatus:", error);
+      }
+    },
+    [address]
+  );
+
   useEffect(() => {
     if (isConfirming && !toastIdRef.current) {
       toastIdRef.current = toast.loading("Transaction is being mined...");
@@ -98,10 +142,20 @@ export function MintForm({ contractAddress }: MintFormProps) {
       toast.success("NFT minted successfully 🎉", {
         id: toastIdRef.current,
       });
+
       toastIdRef.current = null;
-      setTokenURI("");
+
+      // Update mint status in database
+      if (tokenURI) {
+        updateMintStatus(tokenURI);
+      }
+
+      // Reset form after a brief delay
+      setTimeout(() => {
+        setTokenURI("");
+      }, 100);
     }
-  }, [isSuccess]);
+  }, [isSuccess, tokenURI, updateMintStatus]);
 
   useEffect(() => {
     if (txError && toastIdRef.current) {

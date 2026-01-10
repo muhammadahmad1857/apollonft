@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   useAccount,
   useWriteContract,
@@ -21,6 +20,7 @@ import FileSelectInput from "../ui/FileSelectInput";
 import { Image, Loader2, Layers, Hash } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BaseError } from "viem";
+import { createClient } from "@/lib/config/supabase/client";
 
 interface BatchMintFormProps {
   contractAddress: `0x${string}`;
@@ -106,17 +106,71 @@ export function BatchMintForm({ contractAddress }: BatchMintFormProps) {
     }
   }, [isConfirming, quantity]);
 
+  // Update mint status function
+  const updateMintStatus = useCallback(
+    async (fileIpfsUrl: string) => {
+      if (!address) return;
+
+      try {
+        const supabase = createClient();
+        // Find the file by matching ipfsUrl with the tokenURI
+        const { data, error } = await supabase
+          .from("files")
+          .select("id")
+          .eq("ipfsUrl", fileIpfsUrl)
+          .eq("wallet_id", address)
+          .single();
+
+        if (error) {
+          console.error("Error finding file:", error);
+          return;
+        }
+
+        if (!data || !data.id) {
+          console.warn("File not found for IPFS URL:", fileIpfsUrl);
+          return;
+        }
+
+        // Update the isMinted status to true
+        const { error: updateError } = await supabase
+          .from("files")
+          .update({ isMinted: true })
+          .eq("id", data.id);
+
+        if (updateError) {
+          console.error("Error updating mint status:", updateError);
+          toast.error("Failed to update mint status in database");
+        } else {
+          console.log("Mint status updated successfully for file:", data.id);
+        }
+      } catch (error) {
+        console.error("Error in updateMintStatus:", error);
+      }
+    },
+    [address]
+  );
+
   // Success
   useEffect(() => {
     if (isSuccess && toastIdRef.current) {
       toast.success(`Successfully minted ${quantity} NFTs! 🎉`, {
         id: toastIdRef.current,
       });
+
       toastIdRef.current = null;
-      setTokenURI("");
-      setQuantity("1");
+
+      // Update mint status in database (batch mint uses same tokenURI for all NFTs)
+      if (tokenURI) {
+        updateMintStatus(tokenURI);
+      }
+
+      // Reset form after a brief delay
+      setTimeout(() => {
+        setTokenURI("");
+        setQuantity("1");
+      }, 100);
     }
-  }, [isSuccess, quantity]);
+  }, [isSuccess, quantity, tokenURI, updateMintStatus]);
 
   // On-chain failure (revert)
   useEffect(() => {
