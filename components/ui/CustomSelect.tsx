@@ -3,7 +3,8 @@
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check,  PlusIcon } from "lucide-react";
+import Link from "next/link";
 
 interface Option {
   value: string;
@@ -85,6 +86,13 @@ const CustomSelect = ({
                   {option.value === value && <Check className="h-4 w-4" />}
                 </li>
               ))}
+              
+              <li
+               
+                className="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer flex items-center justify-between"
+              >
+                <Link href={"/create/upload"}><PlusIcon/> Create New</Link>
+              </li>
             </ul>
           </motion.div>
         )}

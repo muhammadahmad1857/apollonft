@@ -19,7 +19,7 @@ export default function MetadataPage() {
     title: string;
     description: string;
     coverImageUrl?: string;
-    musicTrackUrl?: string;
+    musicTrackUrl: string;
   }>({
     name: "",
     title: "",
@@ -54,7 +54,7 @@ export default function MetadataPage() {
         title: metadata.title,
         description: metadata.description,
         cover: metadata.coverImageUrl || null,
-        media: metadata.musicTrackUrl || null,
+        media: metadata.musicTrackUrl,
       };
 
       // Upload metadata to Pinata with name format "name-title.json"

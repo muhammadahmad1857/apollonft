@@ -16,14 +16,14 @@ interface MetadataFormProps {
     title: string;
     description: string;
     coverImageUrl?: string;
-    musicTrackUrl?: string;
+    musicTrackUrl: string;
   }) => void;
   initialData?: {
     name: string;
     title: string;
     description: string;
     coverImageUrl?: string;
-    musicTrackUrl?: string;
+    musicTrackUrl: string;
   };
 }
 
@@ -41,7 +41,7 @@ export function MetadataForm({
     initialData?.coverImageUrl
   );
   const [musicTrackUrl, setMusicTrackUrl] = useState(
-    initialData?.musicTrackUrl
+    initialData?.musicTrackUrl || ""
   );
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -287,6 +287,7 @@ export function MetadataForm({
             walletId={address}
             fileExtensions={[".mp3", ".mp4"]}
             onChange={(url) => {
+              console.log("Our music track url", url);
               setMusicTrackUrl(url);
               handleFieldChange();
             }}
