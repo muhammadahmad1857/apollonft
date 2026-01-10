@@ -47,7 +47,7 @@ export function MetadataForm({
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFieldChange = useCallback(() => {
+  const handleFieldChange = () => {
     onMetadataChange({
       name,
       title,
@@ -55,18 +55,10 @@ export function MetadataForm({
       coverImageUrl,
       musicTrackUrl,
     });
-  }, [
-    name,
-    title,
-    description,
-    coverImageUrl,
-    musicTrackUrl,
-    onMetadataChange,
-  ]);
+  };
 
   const uploadCoverImage = async (file: File) => {
     try {
-      setIsUploadingCover(true);
 
       // Get signed JWT
       // const jwtRes = await fetch("/api/pinata/jwt", { method: "POST" });
@@ -121,6 +113,8 @@ export function MetadataForm({
         toast.error("Image size must be less than 10MB");
         return;
       }
+      setIsUploadingCover(true);
+
 
       // Create preview
       const reader = new FileReader();

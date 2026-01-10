@@ -56,6 +56,7 @@ export default function MetadataPage() {
         cover: metadata.coverImageUrl || null,
         media: metadata.musicTrackUrl,
       };
+      console.log(metadataJSON)
 
       // Upload metadata to Pinata with name format "name-title.json"
       const JWT =
