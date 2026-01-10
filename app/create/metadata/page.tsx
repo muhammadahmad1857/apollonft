@@ -33,8 +33,8 @@ export default function MetadataPage() {
   };
 
   const saveMetadata = async () => {
-    if (!metadata.name || !metadata.title) {
-      toast.error("Please fill in name and title");
+    if (!metadata.name || !metadata.title || !metadata.musicTrackUrl) {
+      toast.error("Please fill in name and music track url");
       return;
     }
 
