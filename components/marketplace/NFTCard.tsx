@@ -29,6 +29,7 @@ const NFTCard = ({
   // Determine media type using HEAD request (most reliable for HTTP URLs)
   useEffect(() => {
     const detectMediaType = async () => {
+      console.log("Detecting media type for media ",media)
       if (!media) return;
 
       try {
@@ -36,7 +37,7 @@ const NFTCard = ({
         if (!response.ok) return;
 
         const contentType = response.headers.get("content-type")?.toLowerCase() || "";
-
+        console.log("contentType",contentType)
         if (contentType.startsWith("audio/")) {
           setMediaType("audio");
         } else if (contentType.startsWith("video/")) {
