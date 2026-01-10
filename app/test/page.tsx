@@ -1,3 +1,4 @@
+"use client";
 import { usePublicClient, useWatchContractEvent } from "wagmi";
 import { zeroAddress, parseAbi, type Log } from "viem";
 import { useState, useEffect } from "react";
