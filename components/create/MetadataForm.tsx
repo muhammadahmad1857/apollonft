@@ -48,6 +48,7 @@ export function MetadataForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFieldChange = () => {
+    console.log("Setting metadata to ", musicTrackUrl)
     onMetadataChange({
       name,
       title,
@@ -283,6 +284,8 @@ export function MetadataForm({
             onChange={(url) => {
               console.log("Our music track url", url);
               setMusicTrackUrl(url);
+              console.log("set", musicTrackUrl);
+
               handleFieldChange();
             }}
             className="w-full"
