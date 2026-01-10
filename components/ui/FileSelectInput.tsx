@@ -8,6 +8,7 @@ import { createClient } from "@/lib/config/supabase/client";
 interface FileFromDB {
   type: string;
   ipfsUrl: string;
+  filename:string
 }
 
 interface FileSelectInputProps {
@@ -29,23 +30,22 @@ const FileSelectInput = ({
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const supabase =  createClient();
-        const { data, error,} = await supabase
-    .from("files")
-    .select("type, ipfsUrl")
-    .eq("wallet_id", walletId);
-  if (error) {
-    console.log("Error fetching files from Supabase:", error);
-    throw new Error("Failed to fetch files");
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("files")
+          .select("filename, type, ipfsUrl")
+          .eq("wallet_id", walletId);
+        if (error) {
+          console.log("Error fetching files from Supabase:", error);
+          throw new Error("Failed to fetch files");
+        }
 
-  }
-      
-        const allFiles: FileFromDB[] = data
+        const allFiles: FileFromDB[] = data;
 
         let filteredFiles = allFiles;
         if (fileExtensions && fileExtensions.length > 0) {
           filteredFiles = allFiles.filter((file) =>
-            fileExtensions.some((ext) => file.type===ext)
+            fileExtensions.some((ext) => file.type === ext)
           );
         }
         setFiles(filteredFiles);
@@ -66,7 +66,7 @@ const FileSelectInput = ({
 
   const options = files.map((file) => ({
     value: file.ipfsUrl,
-    label: file.type,
+    label: `${file.filename}${file.type}`,
   }));
 
   return (

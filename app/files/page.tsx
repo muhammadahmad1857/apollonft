@@ -25,6 +25,7 @@ interface FileData {
   ipfsUrl: string;
   type: string;
   isMinted: boolean;
+  filename: string;
 }
 
 export default function FilesPage() {
@@ -107,7 +108,7 @@ export default function FilesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>IPFS URL</TableHead>
                   <TableHead>Created At</TableHead>
@@ -118,7 +119,7 @@ export default function FilesPage() {
                 {files.map((file) => (
                   <TableRow key={file.id}>
                     <TableCell className="font-medium">
-                      {truncate(file.id, 20)}
+                      {truncate(file.filename, 20)}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{file.type}</Badge>
