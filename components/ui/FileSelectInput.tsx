@@ -26,9 +26,10 @@ const FileSelectInput = ({
 }: FileSelectInputProps) => {
   const [files, setFiles] = useState<FileFromDB[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>("");
-
+  const [isLoading,setIsLoading] = useState(false)
   useEffect(() => {
     const fetchFiles = async () => {
+      setIsLoading(true)
       try {
         const supabase = createClient();
         const { data, error } = await supabase
@@ -52,6 +53,9 @@ const FileSelectInput = ({
       } catch (error) {
         console.error("Failed to fetch files:", error);
       }
+      finally{
+        setIsLoading(false)
+      }
     };
 
     if (walletId) {
@@ -74,6 +78,7 @@ const FileSelectInput = ({
       value={selectedFile}
       onChange={handleSelectChange}
       options={options}
+      isLoading={isLoading}
       placeholder="Select a file..."
       className={className}
     />
