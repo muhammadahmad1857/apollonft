@@ -89,14 +89,17 @@ export default function PublicMintsGrid() {
                   "ipfs://",
                   "https://gateway.pinata.cloud/ipfs/"
                 ),
-                media: data.animation_url || data.media,
+                media: data.media.replace(
+                  "ipfs://",
+                  "https://gateway.pinata.cloud/ipfs/"
+                ),
                 description: data.description || "",
                 name: data.name || "Unknown Artist",
                 minted: true,
                 txHash,
               } as MintWithMetadata;
             } catch (err) {
-              console.warn(`Failed for token #${tokenId}:`, err);
+              console.log(`Failed for token #${tokenId}:`, err);
               return {
                 tokenId,
                 title: `Token #${tokenId}`,
@@ -169,7 +172,7 @@ export default function PublicMintsGrid() {
 
           setMints((prev) => [newMint, ...prev]); // newest first
         } catch (err) {
-          console.warn(`New mint metadata failed #${tokenId}:`, err);
+          console.log(`New mint metadata failed #${tokenId}:`, err);
           setMints((prev) => [
             {
               tokenId,
